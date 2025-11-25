@@ -9,8 +9,8 @@ stages:
     steps:
     - pwsh: |
         Write-Host "Cloning self repo"
-        $AuthHeader = "http.extraheader=AUTHORIZATION: bearer $(system.accessToken)"
-        git -c $AuthHeader clone https://github.com/Winniexu01/TempTest.git "$(Agent.TempDirectory)\VS"
+        New-Item -ItemType Directory -Path "$(Agent.TempDirectory)\VS"
+        git clone https://github.com/Winniexu01/TempTest.git "$(Agent.TempDirectory)\VS"
         Write-Host "Cloning is done"
         Set-Location "$(Agent.TempDirectory)\VS"
       displayName: Clone VS and Set Location
