@@ -18,10 +18,10 @@ stages:
         SYSTEM_ACCESSTOKEN: $(System.AccessToken)
 
     - pwsh: |
-        Write-Host "Checking current folder: $(current.workingDirectory)"
+        Write-Host "Current directory is: $(Get-Location)"
       displayName: Checking current folder
 
     - pwsh: |
-        Write-Host "Checking current working folder: $(current.workingDirectory)"
+        Write-Host "Current directory is: $(Get-Location)"
       displayName: Checking current folder
       workingDirectory: $(Agent.TempDirectory)/VS
