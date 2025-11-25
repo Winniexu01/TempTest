@@ -1,0 +1,27 @@
+trigger: none
+pr: none
+pool:
+  vmImage: 'windows-latest'
+stages:
+- stage: stage
+  jobs:
+  - job: Phase_1
+    steps:
+    - pwsh: |
+        Write-Host "Cloning self repo"
+        $AuthHeader = "http.extraheader=AUTHORIZATION: bearer $(system.accessToken)"
+        git -c $AuthHeader clone https://github.com/Winniexu01/TempTest.git "$(Agent.TempDirectory)\VS"
+        Write-Host "Cloning is done"
+        Set-Location "$(Agent.TempDirectory)\VS"
+      displayName: Clone VS and Set Location
+      env:
+        SYSTEM_ACCESSTOKEN: $(System.AccessToken)
+
+    - pwsh: |
+        Write-Host "Checking current folder: $(current.workingDirectory)"
+      displayName: Checking current folder
+
+    - pwsh: |
+        Write-Host "Checking current working folder: $(current.workingDirectory)"
+      displayName: Checking current folder
+      workingDirectory: $(Agent.TempDirectory)/VS
