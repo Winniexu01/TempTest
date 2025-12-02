@@ -7,6 +7,7 @@ stages:
   jobs:
   - job: Phase_1
     steps:
+    - task: NuGetAuthenticate@1
     - task: NuGetCommand@2
       displayName: 'NuGet Install VSEng.PI Package'
       inputs:
@@ -16,7 +17,6 @@ stages:
         noCache: true
         restoreDirectory: '$(Agent.BuildDirectory)\IntegrationScripts'
 
-      
     - pwsh: |
         $success = $false
         Get-ChildItem -Path '$(Agent.BuildDirectory)\IntegrationScripts' -Directory -Filter 'VSEng.PI*' | ForEach-Object {
