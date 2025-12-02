@@ -7,21 +7,42 @@ stages:
   jobs:
   - job: Phase_1
     steps:
-    - pwsh: |
-        Write-Host "Cloning self repo"
-        New-Item -ItemType Directory -Path "$(Agent.TempDirectory)\VS"
-        git clone https://github.com/Winniexu01/TempTest.git "$(Agent.TempDirectory)\VS"
-        Write-Host "Cloning is done"
-        Set-Location "$(Agent.TempDirectory)\VS"
-      displayName: Clone VS and Set Location
-      env:
-        SYSTEM_ACCESSTOKEN: $(System.AccessToken)
+    - task: NuGetCommand@2
+      displayName: 'NuGet Install VSEng.PI Package'
+      inputs:
+        restoreSolution: packages.vsengpi.config
+        feedsToUse: config
+        nugetConfigPath: nuget.config
+        noCache: true
+        restoreDirectory: '$(Agent.BuildDirectory)\IntegrationScripts'
 
+      
     - pwsh: |
-        Write-Host "Current directory is: $(Get-Location)"
-      displayName: Checking current folder
-
-    - pwsh: |
-        Write-Host "Current directory is: $(Get-Location)"
-      displayName: Checking current folder
-      workingDirectory: $(Agent.TempDirectory)/VS
+        $success = $false
+        Get-ChildItem -Path '$(Agent.BuildDirectory)\IntegrationScripts' -Directory -Filter 'VSEng.PI*' | ForEach-Object {
+            $from = $_.FullName
+            $to = '$(SourceFolder)\VSEng.PI'
+            Write-Host "From: $from"
+            Write-Host "Destination: $to"
+        
+            for ($i=0; $i -lt 3; $i++) {
+                try {
+                    if ((Get-Item $from).Attributes -match "ReadOnly") {
+                        Write-Host "Cleanup ReadOnly Attribute"
+                        Set-ItemProperty $from -Name Attributes -Value ((Get-Item $from).Attributes -band -17)
+                    }
+                    Move-Item $from $to -Force
+                    $success = $true
+                    Write-Host "Move-Item succeeded"
+                    break
+                } catch {
+                    Write-Warning "Move-Item failed: $_. Try #$($i+1)"
+                    Start-Sleep -Seconds 1
+                }
+            }
+            if (-not $success) {
+                throw "Move-Item failed after retries"
+            }
+        }
+      displayName: 'Move VSEng.PI Folder'
+      condition: succeeded()
