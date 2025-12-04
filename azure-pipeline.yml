@@ -1,8 +1,8 @@
 parameters:
 - name: PkgVersion
   type: string
-  displayName: "specific package version for Microsoft.Build. If empty, the test will fail."
-  default: '17.13.19'
+  displayName: "specific package version for Microsoft.Build."
+  default: ''
 
 trigger: none
 pr: none
@@ -16,9 +16,13 @@ stages:
     - pwsh: |
         Write-Host $env:NUGET_AUTH_TOKEN
       displayName: Check Env
-    - task: NuGetCommand@2
-      displayName: 'NuGet Install Microsoft.Build Package'
-      inputs:
-        command: custom
-        arguments: 'install Microsoft.Build -version ${{ parameters.PkgVersion }} -ConfigFile $(Build.SourcesDirectory)\Nuget.config -OutputDirectory $(Agent.BuildDirectory)\IntegrationScripts'
-
+    - ${{ if eq(variables['Version'], '') }}:
+      - task: NuGetCommand@2
+        displayName: 'NuGet Install Microsoft.Build Package'
+        inputs:
+          arguments: 'install Microsoft.Build -ConfigFile $(Build.SourcesDirectory)\Nuget.config -OutputDirectory $(Agent.BuildDirectory)\IntegrationScripts'
+    - ${{ if ne(variables['Version'], '') }}:
+      - task: NuGetCommand@2
+        displayName: 'NuGet Install Microsoft.Build Package'
+        inputs:
+          arguments: 'install Microsoft.Build -Version $(Version) -ConfigFile $(Build.SourcesDirectory)\Nuget.config -OutputDirectory $(Agent.BuildDirectory)\IntegrationScripts'
