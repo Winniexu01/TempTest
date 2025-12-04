@@ -2,7 +2,6 @@ parameters:
 - name: PkgVersion
   type: string
   default: ''
-  displayName: "specific package version for Microsoft.Build."
 
 trigger: none
 pr: none
