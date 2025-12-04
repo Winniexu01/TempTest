@@ -16,12 +16,12 @@ stages:
     - pwsh: |
         Write-Host $env:NUGET_AUTH_TOKEN
       displayName: Check Env
-    - ${{ if eq(variables['Version'], '') }}:
+    - ${{ if eq(parameters.PkgVersion, '') }}:
       - task: NuGetCommand@2
         displayName: 'NuGet Install Microsoft.Build Package'
         inputs:
           arguments: 'install Microsoft.Build -ConfigFile $(Build.SourcesDirectory)\Nuget.config -OutputDirectory $(Agent.BuildDirectory)\IntegrationScripts'
-    - ${{ if ne(variables['Version'], '') }}:
+    - ${{ if ne(parameters.PkgVersion, '') }}:
       - task: NuGetCommand@2
         displayName: 'NuGet Install Microsoft.Build Package ${{ parameters.PkgVersion }}'
         inputs:
