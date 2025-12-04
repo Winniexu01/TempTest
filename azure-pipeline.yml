@@ -17,6 +17,9 @@ stages:
   jobs:
   - job: Phase_1
     steps:
+    - pwsh: |
+        Write-Host $env:NUGET_AUTH_TOKEN
+      displayName: Check Env
     - task: NuGetToolInstaller@1
     - task: NuGetCommand@2
       displayName: 'NuGet Install Microsoft.Build Package'
@@ -28,6 +31,6 @@ stages:
         # restoreDirectory: '$(Agent.BuildDirectory)\IntegrationScripts'
 
         feedsToUse: 'select'
-        command: 'custom'
-        arguments: 'install Microsoft.Build -version ${{ parameters.PkgVersion }} -ConfigFile ./Nuget.config -OutputDirectory $(Agent.BuildDirectory)\IntegrationScripts'
+        command: custom
+        arguments: 'install Microsoft.Build -version ${{ parameters.PkgVersion }} -Source $(VsPackageFeedUrl) -OutputDirectory $(Agent.BuildDirectory)\IntegrationScripts'
 
