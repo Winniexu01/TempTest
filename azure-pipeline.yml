@@ -15,6 +15,10 @@ stages:
     - pwsh: |
         Write-Host $env:NUGET_AUTH_TOKEN
       displayName: Check Env
+    - task: NuGetCommand@2
+      displayName: 'NuGet Install Microsoft.Build Package1'
+      inputs:
+        arguments: 'install Microsoft.Build -ConfigFile $(Build.SourcesDirectory)\Nuget.config -OutputDirectory $(Agent.BuildDirectory)\IntegrationScripts1'
     - ${{ if eq(parameters.PkgVersion, ' ') }}:
       - task: NuGetCommand@2
         displayName: 'NuGet Install Microsoft.Build Package'
