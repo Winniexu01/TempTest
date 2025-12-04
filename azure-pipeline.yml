@@ -25,3 +25,10 @@ stages:
         displayName: 'NuGet Install Microsoft.Build Package ${{ parameters.PkgVersion }}'
         inputs:
           arguments: 'install Microsoft.Build -Version ${{ parameters.PkgVersion }} -ConfigFile $(Build.SourcesDirectory)\Nuget.config -OutputDirectory $(Agent.BuildDirectory)\IntegrationScripts'
+    - pwsh: |
+        $success = $false
+        Get-ChildItem -Path '$(Agent.BuildDirectory)\IntegrationScripts' -Directory -Filter 'Microsoft.Build*' | ForEach-Object {
+          Write-Host "$_.FullName"
+        }
+      displayName: 'Check if Package Version'
+      condition: succeeded()
