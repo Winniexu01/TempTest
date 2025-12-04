@@ -12,22 +12,17 @@ stages:
   jobs:
   - job: Phase_1
     steps:
-    - pwsh: |
-        Write-Host $env:NUGET_AUTH_TOKEN
-      displayName: Check Env
-    - task: NuGetCommand@2
-      displayName: 'NuGet Install Microsoft.Build Package1'
-      inputs:
-        arguments: 'install Microsoft.Build -ConfigFile $(Build.SourcesDirectory)\Nuget.config -OutputDirectory $(Agent.BuildDirectory)\IntegrationScripts1'
     - ${{ if eq(parameters.PkgVersion, ' ') }}:
       - task: NuGetCommand@2
         displayName: 'NuGet Install Microsoft.Build Package'
         inputs:
+          command: custom
           arguments: 'install Microsoft.Build -ConfigFile $(Build.SourcesDirectory)\Nuget.config -OutputDirectory $(Agent.BuildDirectory)\IntegrationScripts'
     - ${{ if ne(parameters.PkgVersion, ' ') }}:
       - task: NuGetCommand@2
         displayName: 'NuGet Install Microsoft.Build Package ${{ parameters.PkgVersion }}'
         inputs:
+          command: custom
           arguments: 'install Microsoft.Build -Version ${{ parameters.PkgVersion }} -ConfigFile $(Build.SourcesDirectory)\Nuget.config -OutputDirectory $(Agent.BuildDirectory)\IntegrationScripts'
     - pwsh: |
         $success = $false
