@@ -21,6 +21,7 @@ stages:
     - task: NuGetCommand@2
       displayName: 'NuGet Install Microsoft.Build Package'
       inputs:
+        feedsToUse: 'select'
         command: 'custom'
         arguments: 'install Microsoft.Build -version ${{ parameters.PkgVersion }} -Source $(VsPackageFeedUrl) -OutputDirectory $(Agent.BuildDirectory)\IntegrationScripts'
 
