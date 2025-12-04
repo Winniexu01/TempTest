@@ -22,5 +22,5 @@ stages:
       displayName: 'NuGet Install Microsoft.Build Package'
       inputs:
         command: 'custom'
-        arguments: 'install Microsoft.Build -version $(PkgVersion) -Source $(VsPackageFeedUrl) -OutputDirectory $(Agent.BuildDirectory)\IntegrationScripts'
+        arguments: 'install Microsoft.Build -version ${{ parameters.PkgVersion }} -Source $(VsPackageFeedUrl) -OutputDirectory $(Agent.BuildDirectory)\IntegrationScripts'
 
