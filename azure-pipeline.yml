@@ -21,13 +21,13 @@ stages:
     - task: NuGetCommand@2
       displayName: 'NuGet Install Microsoft.Build Package'
       inputs:
-        restoreSolution: src/packages.vsengpi.config
-        feedsToUse: config
-        nugetConfigPath: nuget.config
-        noCache: true
-        restoreDirectory: '$(Agent.BuildDirectory)\IntegrationScripts'
+        # restoreSolution: src/packages.vsengpi.config
+        # feedsToUse: config
+        # nugetConfigPath: nuget.config
+        # noCache: true
+        # restoreDirectory: '$(Agent.BuildDirectory)\IntegrationScripts'
 
-        # feedsToUse: 'select'
-        # command: 'custom'
-        # arguments: 'install Microsoft.Build -version ${{ parameters.PkgVersion }} -Source $(VsPackageFeedUrl) -OutputDirectory $(Agent.BuildDirectory)\IntegrationScripts'
+        feedsToUse: 'select'
+        command: 'custom'
+        arguments: 'install Microsoft.Build -version ${{ parameters.PkgVersion }} -ConfigFile ./Nuget.config -OutputDirectory $(Agent.BuildDirectory)\IntegrationScripts'
 
