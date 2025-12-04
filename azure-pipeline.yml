@@ -4,10 +4,6 @@ parameters:
   displayName: "specific package version for Microsoft.Build. If empty, the test will fail."
   default: '17.13.19'
 
-variables:
-- name: VsPackageFeedUrl
-  value: 'https://pkgs.dev.azure.com/v-wexu0720/_packaging/Test/nuget/v3/index.json'
-
 trigger: none
 pr: none
 pool:
@@ -20,17 +16,9 @@ stages:
     - pwsh: |
         Write-Host $env:NUGET_AUTH_TOKEN
       displayName: Check Env
-    - task: NuGetToolInstaller@1
     - task: NuGetCommand@2
       displayName: 'NuGet Install Microsoft.Build Package'
       inputs:
-        # restoreSolution: src/packages.vsengpi.config
-        # feedsToUse: config
-        # nugetConfigPath: nuget.config
-        # noCache: true
-        # restoreDirectory: '$(Agent.BuildDirectory)\IntegrationScripts'
-
-        feedsToUse: 'select'
         command: custom
-        arguments: 'install Microsoft.Build -version ${{ parameters.PkgVersion }} -Source $(VsPackageFeedUrl) -OutputDirectory $(Agent.BuildDirectory)\IntegrationScripts'
+        arguments: 'install Microsoft.Build -version ${{ parameters.PkgVersion }} -ConfigFile $(Build.SourcesDirectory)\Nuget.config -OutputDirectory $(Agent.BuildDirectory)\IntegrationScripts'
 
