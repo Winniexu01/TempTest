@@ -23,6 +23,6 @@ stages:
           arguments: 'install Microsoft.Build -ConfigFile $(Build.SourcesDirectory)\Nuget.config -OutputDirectory $(Agent.BuildDirectory)\IntegrationScripts'
     - ${{ if ne(variables['Version'], '') }}:
       - task: NuGetCommand@2
-        displayName: 'NuGet Install Microsoft.Build Package'
+        displayName: 'NuGet Install Microsoft.Build Package ${{ parameters.PkgVersion }}'
         inputs:
-          arguments: 'install Microsoft.Build -Version $(Version) -ConfigFile $(Build.SourcesDirectory)\Nuget.config -OutputDirectory $(Agent.BuildDirectory)\IntegrationScripts'
+          arguments: 'install Microsoft.Build -Version ${{ parameters.PkgVersion }} -ConfigFile $(Build.SourcesDirectory)\Nuget.config -OutputDirectory $(Agent.BuildDirectory)\IntegrationScripts'
