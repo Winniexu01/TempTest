@@ -57,8 +57,7 @@ stages:
     - powershell: Get-ChildItem -LiteralPath "$(Build.SourcesDirectory)" -Recurse
       displayName: 'List all files in workspace'
 
-    # - script: |
-    #     cd src/MyApp/bin/Release
-    #     MyApp.exe arg1 arg2
-    #   displayName: 'Run .NET Framework EXE'
-    #   workingDirectory: $(Build.ArtifactStagingDirectory)\Output
+    - script: |
+        DotnetFramework472.exe
+      displayName: 'Run .NET Framework EXE'
+      workingDirectory: $(Build.ArtifactStagingDirectory)\Output
