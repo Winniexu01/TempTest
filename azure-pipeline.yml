@@ -1,7 +1,7 @@
-parameters:
-- name: PkgVersion
-  type: string
-  default: ' '
+variables:
+- name: SourceFolder
+  value: $(Build.SourcesDirectory)
+
 
 pr: none
 trigger: none
@@ -16,64 +16,20 @@ stages:
   - job: TestVariables
     displayName: Test Variables
     steps:
-    - powershell: |
-        $MyValue = "Powershell Value"
-        Write-Host "##vso[task.setvariable variable=MyVar]$MyValue"
-      continueOnError: true
-      displayName: Powershell Script
-
-    - powershell: |
-        echo $env:MyVar
-      continueOnError: true
-      env:
-        MyVar: $(MyVar)
-      displayName: Test variables Powershell Script
-
     - task: UseDotNet@2
       inputs:
         packageType: 'sdk'
         version: '8.0.x'
       displayName: 'Install .NET 8 SDK'
 
-    - powershell: |
-        $filePath = "LoggingCommands/LoggingCommands/LoggingCommands.csproj"
-        if (Test-Path $filePath) {
-            Write-Host "File exists: $filePath"
-            exit 0
-        } else {
-            Write-Host "File does not exist: $filePath"
-            exit 1
-        }
-      displayName: 'Check if file exists'
+    - task: NuGetToolInstaller@1
 
-    - script: dotnet build LoggingCommands/LoggingCommands/LoggingCommands.csproj --configuration Release
+    - task: NuGetCommand@2
+      inputs:
+        restoreSolution: '**/*.slnx'
+
+    - script: dotnet build $(SourceFolder)/LoggingCommands/LoggingCommands/LoggingCommands.csproj --configuration Release
       displayName: 'Build Project'
 
-    - script: dotnet run --project LoggingCommands/LoggingCommands/LoggingCommands.csproj --configuration Release
+    - script: dotnet run --project $(SourceFolder)/LoggingCommands/LoggingCommands/LoggingCommands.csproj --configuration Release
       displayName: Run LoggingCommands Solution
-
-    - powershell: |
-        echo $env:MyValue
-      env:
-        MyValue: $(CWResult)
-      displayName: 'Test variables Console App'
-
-    - ${{ if eq(parameters.PkgVersion, ' ') }}:
-      - task: NuGetCommand@2
-        displayName: 'NuGet Install Microsoft.Build Package'
-        inputs:
-          command: custom
-          arguments: 'install Microsoft.Build -ConfigFile $(Build.SourcesDirectory)\Nuget.config -OutputDirectory $(Agent.BuildDirectory)\IntegrationScripts'
-    - ${{ if ne(parameters.PkgVersion, ' ') }}:
-      - task: NuGetCommand@2
-        displayName: 'NuGet Install Microsoft.Build Package ${{ parameters.PkgVersion }}'
-        inputs:
-          command: custom
-          arguments: 'install Microsoft.Build -Version ${{ parameters.PkgVersion }} -ConfigFile $(Build.SourcesDirectory)\Nuget.config -OutputDirectory $(Agent.BuildDirectory)\IntegrationScripts'
-    - pwsh: |
-        $success = $false
-        Get-ChildItem -Path '$(Agent.BuildDirectory)\IntegrationScripts' -Directory -Filter 'Microsoft.Build*' | ForEach-Object {
-          Write-Host "$_.FullName"
-        }
-      displayName: 'Check if Package Version'
-      condition: succeeded()
