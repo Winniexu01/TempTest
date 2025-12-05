@@ -4,8 +4,11 @@
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("This is a test!");
-            Console.WriteLine("##vso[task.setvariable variable=CWResult]HelloWorld!");
+            LogFile logFile = new LogFile();
+            logFile.WriteMessage("Information");
+            logFile.WriteMessage("Warning", LogFile.LogType.Warning);
+            logFile.WriteMessage("Error", logFile.LogType.Error);
+
         }
     }
 }
