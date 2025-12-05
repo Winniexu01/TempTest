@@ -52,7 +52,7 @@ stages:
         solution: '$(Build.SourcesDirectory)/DotnetFramework472/DotnetFramework472.slnx'
         msbuildLocationMethod: 'location'
         msbuildLocation: $(msbuild18Path)
-        msbuildArguments: '/bl:$(Build.SourcesDirectory)\Logs\msbuild.binlog;ProjectImports=None /p:Platform=x64 /p:Configuration=Release /p:OutputPath=$(Build.SourcesDirectory)\Output'
+        msbuildArguments: '/bl:$(Build.SourcesDirectory)\Logs\msbuild.binlog;ProjectImports=None  /p:Configuration=Debug /p:Platform="Any CPU" /p:OutputPath=$(Build.SourcesDirectory)\Output'
 
     - powershell: Get-ChildItem -LiteralPath "$(Build.SourcesDirectory)" -Recurse
       displayName: 'List all files in workspace'
