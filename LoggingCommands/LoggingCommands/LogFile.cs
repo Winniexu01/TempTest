@@ -4,14 +4,13 @@ namespace LoggingCommands
     {
         public static void WriteMessage(string msg, LogType logType = LogType.Information)
         {
-            Console.ForegroundColor = logType switch
+            var logissue = logType switch
             {
-                LogType.Error => ConsoleColor.Red,
-                LogType.Warning => ConsoleColor.Yellow,
-                _ => ConsoleColor.Blue
+                LogType.Error => "##vso[task.logissue type=error]",
+                LogType.Warning => "##vso[task.logissue type=warning]",
+                _ => ""
             };
-            Console.WriteLine(msg);
-            Console.ResetColor();
+            Console.WriteLine($"{logissue}{msg}");
         }
 
         public enum LogType
