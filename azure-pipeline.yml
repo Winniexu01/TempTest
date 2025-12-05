@@ -3,15 +3,61 @@ parameters:
   type: string
   default: ' '
 
-trigger: none
 pr: none
+trigger: none
+
 pool:
   vmImage: 'windows-latest'
+
 stages:
-- stage: stage
+- stage: Test
+  displayName: Test Stage
   jobs:
-  - job: Phase_1
+  - job: TestVariables
+    displayName: Test Variables
     steps:
+    - powershell: |
+        $MyValue = "Powershell Value"
+        Write-Host "##vso[task.setvariable variable=MyVar]$MyValue"
+      continueOnError: true
+      displayName: Powershell Script
+
+    - powershell: |
+        echo $env:MyVar
+      continueOnError: true
+      env:
+        MyVar: $(MyVar)
+      displayName: Test variables Powershell Script
+
+    - task: UseDotNet@2
+      inputs:
+        packageType: 'sdk'
+        version: '8.0.x'
+      displayName: 'Install .NET 8 SDK'
+
+    - powershell: |
+        $filePath = "LoggingCommands/LoggingCommands/LoggingCommands.csproj"
+        if (Test-Path $filePath) {
+            Write-Host "File exists: $filePath"
+            exit 0
+        } else {
+            Write-Host "File does not exist: $filePath"
+            exit 1
+        }
+      displayName: 'Check if file exists'
+
+    - script: dotnet build LoggingCommands/LoggingCommands/LoggingCommands.csproj --configuration Release
+      displayName: 'Build Project'
+
+    - script: dotnet run --project LoggingCommands/LoggingCommands/LoggingCommands.csproj --configuration Release
+      displayName: Run LoggingCommands Solution
+
+    - powershell: |
+        echo $env:MyValue
+      env:
+        MyValue: $(CWResult)
+      displayName: 'Test variables Console App'
+
     - ${{ if eq(parameters.PkgVersion, ' ') }}:
       - task: NuGetCommand@2
         displayName: 'NuGet Install Microsoft.Build Package'
