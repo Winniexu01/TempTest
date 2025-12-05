@@ -2,7 +2,7 @@ namespace LoggingCommands
 {
     public class LogFile
     {
-        public static void WriteMessage(string msg, LogType logType)
+        public static void WriteMessage(string msg, LogType logType = LogType.Information)
         {
             Console.ForegroundColor = logType switch
             {

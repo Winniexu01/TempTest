@@ -4,10 +4,9 @@
     {
         static void Main(string[] args)
         {
-            LogFile logFile = new LogFile();
-            logFile.WriteMessage("Information");
-            logFile.WriteMessage("Warning", LogFile.LogType.Warning);
-            logFile.WriteMessage("Error", logFile.LogType.Error);
+            LogFile.WriteMessage("Information");
+            LogFile.WriteMessage("Warning", LogFile.LogType.Warning);
+            LogFile.WriteMessage("Error", LogFile.LogType.Error);
 
         }
     }
