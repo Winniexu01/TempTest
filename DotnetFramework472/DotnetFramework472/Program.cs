@@ -1,18 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Azure.Core;
+using Azure.Identity;
+using Microsoft.VisualStudio.Services.Common;
+using System;
+using System.Threading;
+using static Microsoft.VisualStudio.Services.Graph.GraphResourceIds;
 
 namespace DotnetFramework472
 {
     internal class Program
     {
-        static void Main(string[] args)
+        static int Main(string[] args)
         {
-            LogFile.LogMessage("Information");
-            LogFile.LogMessage("Warning", LogFile.LogType.Warning);
-            LogFile.LogMessage("Error", LogFile.LogType.Error);
+            return -1;
         }
     }
 }
