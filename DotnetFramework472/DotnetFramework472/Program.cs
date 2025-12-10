@@ -18,14 +18,8 @@ namespace DotnetFramework472
 
         private static void SampleMethod()
         {
-            try
-            {
-                throw new InvalidOperationException("Sample exception");
-            }
-            catch (Exception ex)
-            {
-                LogFile.LogMessage(ex.Message, LogFile.LogType.Error);
-            }
+            System.Console.WriteLine("Test");
+            throw new InvalidOperationException("Sample exception");
         }
 
         private static void SampleMethod2()
