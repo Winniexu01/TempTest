@@ -1,10 +1,43 @@
-﻿namespace DotnetFramework472
+﻿using System;
+
+namespace DotnetFramework472
 {
     internal class Program
     {
-        static int Main(string[] args)
+        static void Main(string[] args)
         {
-            return -1;
+            try
+            {
+                SampleMethod2();
+            }
+            catch (Exception ex)
+            {
+                LogFile.LogMessage(ex.Message, LogFile.LogType.Error);
+            }
+        }
+
+        private static void SampleMethod()
+        {
+            try
+            {
+                throw new InvalidOperationException("Sample exception");
+            }
+            catch (Exception ex)
+            {
+                LogFile.LogMessage(ex.Message, LogFile.LogType.Error);
+            }
+        }
+
+        private static void SampleMethod2()
+        {
+            try
+            {
+                SampleMethod();
+            }
+            catch (Exception ex)
+            {
+                LogFile.LogMessage(ex.Message, LogFile.LogType.Error);
+            }
         }
     }
 }

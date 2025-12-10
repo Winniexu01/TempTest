@@ -15,7 +15,7 @@ namespace DotnetFramework472
             {
                 case LogType.Error:
                     logissue = "##vso[task.logissue type=error]";
-                    break;
+                    throw new Exception(msg.ToString());
                 case LogType.Warning:
                     logissue = "##vso[task.logissue type=warning]";
                     break;
