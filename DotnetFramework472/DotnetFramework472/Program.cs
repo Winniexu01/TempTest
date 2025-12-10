@@ -12,7 +12,7 @@ namespace DotnetFramework472
             }
             catch (Exception ex)
             {
-                LogFile.LogMessage(ex.Message, LogFile.LogType.Error);
+                LogFile.LogMessage("Failed", LogFile.LogType.Error);
             }
         }
 
