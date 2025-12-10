@@ -24,14 +24,7 @@ namespace DotnetFramework472
 
         private static void SampleMethod2()
         {
-            try
-            {
-                SampleMethod();
-            }
-            catch (Exception ex)
-            {
-                LogFile.LogMessage(ex.Message, LogFile.LogType.Error);
-            }
+            SampleMethod();
         }
     }
 }
