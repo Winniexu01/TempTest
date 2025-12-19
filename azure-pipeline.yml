@@ -1,3 +1,9 @@
+variables:
+- name: SolutionName
+  value: Testing
+- name: SourceFolder
+  value: $(Build.SourcesDirectory)\Testing
+
 pr: none
 trigger: none
 
@@ -44,20 +50,27 @@ stages:
 
     - task: NuGetToolInstaller@1 
     - task: NuGetCommand@2
+      displayName: 'Nuget: Restore Packages ($(SolutionName).slnx)'
       inputs:
-        restoreSolution: '$(Build.SourcesDirectory)/DotnetFramework472/DotnetFramework472.slnx'
+        restoreSolution: '$(SourceFolder)\$(SolutionName).slnx'
+        feedsToUse: 'config'
+        nugetConfigPath: Nuget.config
+        includeNuGetOrg: false
+      continueOnError: false
 
     - task: MSBuild@1
+      displayName: 'Build $(SolutionName) EXE'
       inputs:
-        solution: '$(Build.SourcesDirectory)/DotnetFramework472/DotnetFramework472.slnx'
+        solution: '$(SourceFolder)\$(SolutionName).slnx'
         msbuildLocationMethod: 'location'
         msbuildLocation: $(msbuild18Path)
-        msbuildArguments: '/bl:$(Build.SourcesDirectory)\Logs\msbuild.binlog;ProjectImports=None  /p:Configuration=Debug /p:Platform="Any CPU" /p:OutputPath=$(Build.SourcesDirectory)\Output'
+        msbuildArguments: '/bl:$(SourceFolder)\Logs\msbuild.binlog;ProjectImports=None /p:Configuration=Debug /p:Platform="Any CPU" /p:OutputPath=$(SourceFolder)\Output'
+      continueOnError: false
 
-    - powershell: Get-ChildItem -LiteralPath "$(Build.SourcesDirectory)" -Recurse
-      displayName: 'List all files in workspace'
-
-    - script: |
-        DotnetFramework472.exe
-      displayName: 'Run .NET Framework EXE'
-      workingDirectory: $(Build.SourcesDirectory)\Output
+    # - script: |
+    #     $(SolutionName).exe
+    #   displayName: 'Run $(SolutionName) EXE'
+    #   workingDirectory: $(SourceFolder)\Output
+    #   env:
+    #     VSEngMailerAuth: $(VSEngMailerAuth)
+    #   continueOnError: true
