@@ -9,7 +9,22 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="VSEng.Mailer"/>
+    <Reference Include="Azure.Core">
+      <HintPath>..\..\VSEngMailer\Net472\Azure.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Azure.Security.KeyVault.Secrets">
+      <HintPath>..\..\VSEngMailer\Net472\Azure.Security.KeyVault.Secrets.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\..\VSEngMailer\Net472\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="VSEng.Mailer">
+      <HintPath>..\..\VSEngMailer\Net472\VSEng.Mailer.dll</HintPath>
+    </Reference>
   </ItemGroup>
+
+  <!--<ItemGroup>
+    <PackageReference Include="VSEng.Mailer"/>
+  </ItemGroup>-->
 
 </Project>
