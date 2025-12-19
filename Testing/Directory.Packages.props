@@ -3,11 +3,6 @@
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
   </PropertyGroup>
   <ItemGroup>
-    <PackageVersion Include="Azure.Identity" Version="1.13.2" />
-    <PackageVersion Include="Azure.Security.KeyVault.Secrets" Version="4.6.0" />
-    <PackageVersion Include="Microsoft.Data.SqlClient" Version="5.1.5" />
-    <PackageVersion Include="Microsoft.Rest.ClientRuntime.Azure" Version="3.3.19" />
-    <PackageVersion Include="Newtonsoft.Json" Version="13.0.3" />
-    <PackageVersion Include="VSEng.Mailer" Version="1.0.22" />
+    <PackageVersion Include="VSEng.Mailer" Version="1.0.31" />
   </ItemGroup>
 </Project>
