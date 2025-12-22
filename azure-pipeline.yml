@@ -69,10 +69,10 @@ stages:
         msbuildArguments: '/bl:$(SourceFolder)\Logs\msbuild.binlog;ProjectImports=None /p:Configuration=Debug /p:Platform="Any CPU" /p:OutputPath=$(SourceFolder)\Output'
       continueOnError: false
 
-    # - script: |
-    #     $(SolutionName).exe
-    #   displayName: 'Run $(SolutionName) EXE'
-    #   workingDirectory: $(SourceFolder)\Output
-    #   env:
-    #     VSEngMailerAuth: $(VSEngMailerAuth)
-    #   continueOnError: true
+    - script: |
+        $(SolutionName).exe
+      displayName: 'Run $(SolutionName) EXE'
+      workingDirectory: $(SourceFolder)\Output
+      env:
+        VSEngMailerAuth: $(VSEngMailerAuth)
+      continueOnError: true
