@@ -73,6 +73,7 @@ stages:
       workingDirectory: $(SourceFolder)\Output
       env:
         VSEngMailerAuth: $(VSEngMailerAuth)
+      continueOnError: true
 
     - script: |
         $(SolutionName).exe "-1"
@@ -80,6 +81,7 @@ stages:
       workingDirectory: $(SourceFolder)\Output
       env:
         VSEngMailerAuth: $(VSEngMailerAuth)
+      continueOnError: true
 
     - script: |
         $(SolutionName).exe "1"
@@ -87,3 +89,4 @@ stages:
       workingDirectory: $(SourceFolder)\Output
       env:
         VSEngMailerAuth: $(VSEngMailerAuth)
+      continueOnError: true
