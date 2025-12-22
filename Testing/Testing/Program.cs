@@ -1,5 +1,6 @@
 ﻿// using VSEng.Mailer;
 using System;
+using System.Reflection.Metadata.Ecma335;
 namespace Testing
 {
     internal class Program
@@ -12,7 +13,18 @@ namespace Testing
             // VSEngMailer.SendMail(message);
             try
             {
-                Console.WriteLine("##vso[task.complete result=partiallySucceeded;]WARNING! The process ran into an error at some point.");
+                if (exitCode == 0)
+                {
+                    Console.WriteLine("##vso[task.complete result=Succeeded;]WARNING! The process ran into an error at some point.");
+                }
+                else if (exitCode == -1)
+                {
+                    Console.WriteLine("##vso[task.complete result=partiallySucceeded;]WARNING! The process ran into an error at some point.");
+                }
+                else
+                {
+                    Console.WriteLine("##vso[task.complete result=Failed;]WARNING! The process ran into an error at some point.");
+                }
                 return exitCode;
             }
             catch (Exception ex)
