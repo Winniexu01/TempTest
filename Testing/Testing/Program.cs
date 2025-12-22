@@ -4,7 +4,7 @@ namespace Testing
 {
     internal class Program
     {
-        static int Main(string[] args)
+        static void Main(string[] args)
         {
             Console.WriteLine("Hello, World!");
             int exitCode = int.Parse(args[0]);
@@ -24,12 +24,12 @@ namespace Testing
                 {
                     Console.WriteLine("##vso[task.complete result=Failed;]WARNING! The process ran into an error at some point.");
                 }
-                return exitCode;
+                // return 0;
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"##vso[task.logissue type=error]{ex.Message}");
-                return 1;
+                // return 1;
             }
         }
     }
