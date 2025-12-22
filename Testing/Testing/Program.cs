@@ -15,16 +15,18 @@ namespace Testing
                 if (exitCode == 0)
                 {
                     Console.WriteLine("##vso[task.complete result=Succeeded;]WARNING! The process ran into an error at some point.");
+                    return 0;
                 }
                 else if (exitCode == -1)
                 {
                     Console.WriteLine("##vso[task.complete result=SucceededWithIssues;]WARNING! The process ran into an error at some point.");
+                    return 0;
                 }
                 else
                 {
                     Console.WriteLine("##vso[task.complete result=Failed;]WARNING! The process ran into an error at some point.");
+                    return exitCode;
                 }
-                return exitCode;
             }
             catch (Exception ex)
             {
