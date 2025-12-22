@@ -71,7 +71,7 @@ stages:
 
     - script: |
         $(SolutionName).exe "0"
-      displayName: 'Run $(SolutionName) EXE'
+      displayName: 'Run $(SolutionName) EXE 0'
       workingDirectory: $(SourceFolder)\Output
       env:
         VSEngMailerAuth: $(VSEngMailerAuth)
@@ -79,7 +79,15 @@ stages:
 
     - script: |
         $(SolutionName).exe "1"
-      displayName: 'Run $(SolutionName) EXE'
+      displayName: 'Run $(SolutionName) EXE 1'
+      workingDirectory: $(SourceFolder)\Output
+      env:
+        VSEngMailerAuth: $(VSEngMailerAuth)
+      continueOnError: true
+
+    - script: |
+        $(SolutionName).exe "-1"
+      displayName: 'Run $(SolutionName) EXE -1'
       workingDirectory: $(SourceFolder)\Output
       env:
         VSEngMailerAuth: $(VSEngMailerAuth)
