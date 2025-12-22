@@ -16,6 +16,7 @@ namespace Testing
             }
             catch (Exception ex)
             {
+                Console.WriteLine($"##vso[task.logissue type=error]{ex.Message}");
                 return 1;
             }
         }
