@@ -3,8 +3,6 @@ variables:
   value: Testing
 - name: SourceFolder
   value: $(Build.SourcesDirectory)\Testing
-- name: System.Debug
-  value: true
 
 pr: none
 trigger: none

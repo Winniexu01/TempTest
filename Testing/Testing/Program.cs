@@ -18,7 +18,7 @@ namespace Testing
                 }
                 else if (exitCode == -1)
                 {
-                    Console.WriteLine("##vso[task.complete result=partiallySucceeded;]WARNING! The process ran into an error at some point.");
+                    Console.WriteLine("##vso[task.complete result=SucceededWithIssues;]WARNING! The process ran into an error at some point.");
                 }
                 else
                 {
