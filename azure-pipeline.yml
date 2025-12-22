@@ -70,7 +70,15 @@ stages:
       continueOnError: false
 
     - script: |
-        $(SolutionName).exe
+        $(SolutionName).exe "0"
+      displayName: 'Run $(SolutionName) EXE'
+      workingDirectory: $(SourceFolder)\Output
+      env:
+        VSEngMailerAuth: $(VSEngMailerAuth)
+      continueOnError: true
+
+    - script: |
+        $(SolutionName).exe "1"
       displayName: 'Run $(SolutionName) EXE'
       workingDirectory: $(SourceFolder)\Output
       env:

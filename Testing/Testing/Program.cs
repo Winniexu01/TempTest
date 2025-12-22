@@ -6,13 +6,14 @@ namespace Testing
     {
         static int Main(string[] args)
         {
-            // Console.WriteLine("Hello, World!");
+            Console.WriteLine("Hello, World!");
+            int exitCode = int.Parse(args[0]);
             // var message = VSEngMailer.CreateMailMessage("v-wexu@microsoft.com", "Test", "This is a test email.");
             // VSEngMailer.SendMail(message);
             try
             {
                 Console.WriteLine("##vso[task.complete result=partiallySucceeded;]WARNING! The process ran into an error at some point.");
-                return 0;
+                return exitCode;
             }
             catch (Exception ex)
             {
