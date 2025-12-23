@@ -22,6 +22,7 @@ Function Write-LogMessage
         'Error'       { $Host.UI.WriteErrorLine("$Message") }
         default       { Write-Host "Information: $Message" }
     }
+    Write-Host "Next step1."
 
     switch ($LogType)
     {
@@ -29,6 +30,7 @@ Function Write-LogMessage
         ([LogType]::Error)       { $Host.UI.WriteErrorLine("$Message") }
         ([LogType]::Information) { Write-Host "Information: $Message" }
     }
+    Write-Host "Next step2."
 
     switch ($LogType)
     {
@@ -36,7 +38,7 @@ Function Write-LogMessage
         ([LogType]::Error)       { Write-Error "$Message" }
         ([LogType]::Information) { Write-Host "Information: $Message" }
     }
-    Write-Host "Next step."
+    Write-Host "Next step3."
 }
 
 Export-ModuleMember -Function Write-LogMessage
