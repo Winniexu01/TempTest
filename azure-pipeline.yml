@@ -2,12 +2,7 @@ variables:
 - name: SolutionName
   value: MultipleProj
 - name: SourceFolder
-  value: $(Build.SourcesDirectory)\MultipleProj\MultipleProj
-
-- name: SolutionNameB
-  value: ProjB
-- name: SourceFolderB
-  value: $(Build.SourcesDirectory)\MultipleProj\ProjB
+  value: $(Build.SourcesDirectory)\MultipleProj
 
 pr: none
 trigger: none
