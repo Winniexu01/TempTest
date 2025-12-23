@@ -32,3 +32,8 @@ stages:
 
         Write-LogMessage -Message "Test Error" -LogType 'Error'
       displayName: 'Run LogFile Tests Error'
+    - pwsh: |
+        Import-Module $(SourceFolder)\LogFile.psm1
+
+        Write-LogMessage -Message "Normal"
+      displayName: 'Run LogFile Tests Information'
