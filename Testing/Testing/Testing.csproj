@@ -8,7 +8,7 @@
     <LangVersion>Latest</LangVersion>
   </PropertyGroup>
 
-  <ItemGroup>
+  <!-- <ItemGroup>
     <Reference Include="Azure.Core">
       <HintPath>..\..\VSEngMailer\Net472\Azure.Core.dll</HintPath>
     </Reference>
@@ -21,10 +21,10 @@
     <Reference Include="VSEng.Mailer">
       <HintPath>..\..\VSEngMailer\Net472\VSEng.Mailer.dll</HintPath>
     </Reference>
-  </ItemGroup>
+  </ItemGroup> -->
 
-  <!--<ItemGroup>
+  <ItemGroup>
     <PackageReference Include="VSEng.Mailer"/>
-  </ItemGroup>-->
+  </ItemGroup>
 
 </Project>

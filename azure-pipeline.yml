@@ -2,7 +2,7 @@ variables:
 - name: SolutionName
   value: Testing
 - name: SourceFolder
-  value: $(Build.SourcesDirectory)\Testing
+  value: $(Build.SourcesDirectory)
 
 pr: none
 trigger: none

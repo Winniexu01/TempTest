@@ -1,4 +1,4 @@
-﻿// using VSEng.Mailer;
+﻿using VSEng.Mailer;
 using System;
 namespace Testing
 {
@@ -8,8 +8,8 @@ namespace Testing
         {
             Console.WriteLine("Hello, World!");
             int exitCode = int.Parse(args[0]);
-            // var message = VSEngMailer.CreateMailMessage("v-wexu@microsoft.com", "Test", "This is a test email.");
-            // VSEngMailer.SendMail(message);
+            var message = VSEngMailer.CreateMailMessage("v-wexu@microsoft.com", "Test", "This is a test email.");
+            VSEngMailer.SendMail(message);
             try
             {
                 if (exitCode == 0)
