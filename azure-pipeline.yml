@@ -37,3 +37,4 @@ stages:
 
         Write-LogMessage -Message "Normal"
       displayName: 'Run LogFile Tests Information'
+      condition: always()
