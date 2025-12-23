@@ -25,12 +25,12 @@ stages:
     - pwsh: |
         Import-Module $(SourceFolder)\LogFile.psm1
 
-        Write-LogMessage -Message "Test warning" -LogType 'Warning'
+        Write-LogMessage -Message "Test warning" -LogType Warning
       displayName: 'Run LogFile Tests Warning'
     - pwsh: |
         Import-Module $(SourceFolder)\LogFile.psm1
 
-        Write-LogMessage -Message "Test Error" -LogType 'Error'
+        Write-LogMessage -Message "Test Error" -LogType Error
       displayName: 'Run LogFile Tests Error'
     - pwsh: |
         Import-Module $(SourceFolder)\LogFile.psm1
