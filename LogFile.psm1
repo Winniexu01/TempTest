@@ -18,6 +18,20 @@ Function Write-LogMessage
 
     switch ($LogType)
     {
+        'Warning'     { Write-Warning "$Message" }
+        'Error'       { $Host.UI.WriteErrorLine("$Message") }
+        default       { Write-Host "Information: $Message" }
+    }
+
+    switch ($LogType)
+    {
+        ([LogType]::Warning)     { Write-Warning "$Message" }
+        ([LogType]::Error)       { $Host.UI.WriteErrorLine("$Message") }
+        ([LogType]::Information) { Write-Host "Information: $Message" }
+    }
+
+    switch ($LogType)
+    {
         ([LogType]::Warning)     { Write-Warning "$Message" }
         ([LogType]::Error)       { Write-Error "$Message" }
         ([LogType]::Information) { Write-Host "Information: $Message" }
