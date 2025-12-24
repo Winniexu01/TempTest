@@ -1,8 +1,10 @@
 variables:
 - name: SolutionName
-  value: MultipleProj
+  # value: MultipleProj
+  value: Testing
 - name: SourceFolder
-  value: $(Build.SourcesDirectory)\MultipleProj
+  # value: $(Build.SourcesDirectory)\MultipleProj
+  value: $(Build.SourcesDirectory)\Testing
 
 pr: none
 trigger: none
@@ -66,14 +68,6 @@ stages:
         msbuildLocation: $(msbuild18Path)
         msbuildArguments: '/bl:$(SourceFolder)\Logs\msbuild.binlog;ProjectImports=None /p:Configuration=Debug /p:Platform="Any CPU" /p:OutputPath=$(SourceFolder)\Output'
       continueOnError: false
-
-    - task: CopyFiles@2
-      displayName: 'Copy DLLs to Output Folder'
-      inputs:
-        SourceFolder: '$(Build.SourcesDirectory)'
-        Contents: '**\bin\$(BuildConfiguration)\*.dll'
-        TargetFolder: '$(SourceFolder)\Output'
-        flattenFolders: true
 
     - script: |
         $(SolutionName).exe
