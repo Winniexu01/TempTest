@@ -6,33 +6,16 @@ namespace Testing
     {
         static int Main(string[] args)
         {
-            Console.WriteLine("Hello, World!");
-            int exitCode = int.Parse(args[0]);
-            var message = VSEngMailer.CreateMailMessage("v-wexu@microsoft.com", "Test", "This is a test email.");
-            VSEngMailer.SendMail(message);
-            try
-            {
-                if (exitCode == 0)
-                {
-                    Console.WriteLine("##vso[task.complete result=Succeeded;]WARNING! The process ran into an error at some point.");
-                    return 0;
-                }
-                else if (exitCode == -1)
-                {
-                    Console.WriteLine("##vso[task.complete result=SucceededWithIssues;]WARNING! The process ran into an error at some point.");
-                    return 0;
-                }
-                else
-                {
-                    Console.WriteLine("##vso[task.complete result=Failed;]WARNING! The process ran into an error at some point.");
-                    return exitCode;
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"##vso[task.logissue type=error]{ex.Message}");
-                return 1;
-            }
+            Logger.LogMessage("Starting the process...");
+            Logger.LogMessage("");// blank line for readability
+            Logger.LogMessage("This is a test log message.", LogType.Warning);
+            Logger.LogMessage("");// blank line for readability
+            Logger.LogMessage("This is a test log message.", LogType.Error);
+            if (ErrorManager.HasError)
+                Console.WriteLine("##vso[task.complete result=SucceededWithIssues;]WARNING! The process ran into an error at some point.");
+            Logger.LogMessage("");// blank line for readability
+            Logger.LogMessage("Process finished.");
+            return 0;
         }
     }
 }
