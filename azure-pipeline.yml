@@ -74,5 +74,5 @@ stages:
     #   displayName: 'Run $(SolutionName) EXE'
     #   workingDirectory: $(SourceFolder)\Output
       - pwsh: |
-          Get-ChildItem Env
+          Get-ChildItem Env:
         displayName: 'Get all Env'
