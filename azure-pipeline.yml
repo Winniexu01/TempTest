@@ -74,8 +74,8 @@ stages:
     #   displayName: 'Run $(SolutionName) EXE'
     #   workingDirectory: $(SourceFolder)\Output
       - pwsh: | 
-          Get-ChildItem Env:
-          echo $BUILD_SOURCEVERSIONMESSAGE
+          Write-Host "Pipeline Title:"
+          Write-Host $env:BUILD_SOURCEVERSIONMESSAGE
         displayName: 'Get all Env'
         env:
           BUILD_SOURCEVERSIONMESSAGE: $(Build.SourceVersionMessage)
