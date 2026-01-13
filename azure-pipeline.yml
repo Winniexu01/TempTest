@@ -75,4 +75,7 @@ stages:
     #   workingDirectory: $(SourceFolder)\Output
       - pwsh: | 
           Get-ChildItem Env:
+          echo $BUILD_SOURCEVERSIONMESSAGE
         displayName: 'Get all Env'
+        env:
+          BUILD_SOURCEVERSIONMESSAGE: $(Build.SourceVersionMessage)
