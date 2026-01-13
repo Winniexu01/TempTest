@@ -73,6 +73,6 @@ stages:
     #     $(SolutionName).exe
     #   displayName: 'Run $(SolutionName) EXE'
     #   workingDirectory: $(SourceFolder)\Output
-      - PowerShell: |
+      - pwsh: |
           Get-ChildItem Env
         displayName: 'Get all Env'
