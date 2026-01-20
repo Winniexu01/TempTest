@@ -1,0 +1,61 @@
+# Variables.yml
+# 
+# This template defines common variables used across Azure DevOps pipelines.
+
+variables:
+# Common Repository Settings
+- name: vsRepo
+  value: VS
+- name: reconRepo
+  value: RECON
+- name: vsWhatsNewContentRepo
+  value: VSWhatsNewContent
+
+- name: projectName
+  value: DevDiv
+- name: sourceFolder
+  value: $(Build.SourcesDirectory)\src
+- name: setupBackupRemote
+  value: true
+
+# Deleted Branch Checking Settings
+- name: artifactName
+  value: BranchList
+- name: targetPath
+  value: $(Build.ArtifactStagingDirectory)\$(artifactName)
+
+# Stale Branch Cleanup Settings
+- name: vsStaleAge
+  value: 180
+- name: vsLimitUserBranchCount
+  value: 5000
+
+- name: reconStaleAge
+  value: 60
+- name: reconLimitUserBranchCount
+  value: 5000
+
+- name: vsWhatsNewContentStaleAge
+  value: 60
+- name: vsWhatsNewContentLimitUserBranchCount
+  value: 5000
+
+# Old Tag Cleanup Settings
+- name: exemptBranches
+  value: d14vsuldr
+- name: monthsToKeepForOfficial
+  value: 6
+- name: monthsToKeepForIntegration
+  value: 3
+- name: dropUrl
+  value: 'https://devdiv.artifacts.visualstudio.com'
+- name: localDropClientPath
+  value: '$(sourceFolder)\DropClient\drop.exe'
+- name: localDropsFilePath
+  value: '$(sourceFolder)\drops.json'
+
+# Abandon Expired PR Settings
+- name: solutionName
+  value: AbandonExpiredPR
+- name: sourceFolder
+  value: $(Build.SourcesDirectory)\AbandonExpiredPR

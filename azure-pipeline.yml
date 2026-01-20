@@ -3,6 +3,11 @@ parameters:
   type: string
   default: 'Azure.Core'
 
+name: $(date:yyyyMMdd)$(rev:.r)
+
+variables:
+- template: /template/variables.yml@self
+
 pr: none
 trigger: none
 
@@ -19,3 +24,7 @@ stages:
     - template: /template/InstallNugetPackage.yml@self
       parameters:
         PackageName: '${{ parameters.PackageName }}'
+
+    - script: |
+        echo "Repository Name: $(vsRepo)"
+      DisplayName: 'Display Variable'
