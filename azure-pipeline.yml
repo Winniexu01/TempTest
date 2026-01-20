@@ -1,10 +1,10 @@
-variables:
-- name: SolutionName
-  # value: MultipleProj
-  value: Testing
-- name: SourceFolder
-  # value: $(Build.SourcesDirectory)\MultipleProj
-  value: $(Build.SourcesDirectory)\Testing
+parameters:
+- name: PackageName
+  type: string
+  default: 'Azure.Core'
+- name: PkgVersion
+  type: string
+  default: ''
 
 pr: none
 trigger: none
@@ -19,57 +19,10 @@ stages:
   - job: TestVariables
     displayName: Test Variables
     steps:
-    - task: PowerShell@2
-      displayName: Find MSBuild
-      inputs:
-        targetType: inline
-        script: |
-          $vswherePath = "${Env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
-          $instances = & $vswherePath @("-utf8", "-version", "[17.0,19.0)", "-latest", "-format", "json") | ConvertFrom-Json
-          if ($instances.Length -eq 0)
-          {
-            Write-Warning "Could not find any complete instances of Visual Studio."
-          }
-          elseif ($instances.Length -eq 1)
-          {
-            $instance = $instances[0]
-            Write-Host "Found only one instance of Visual Studio: $($instance.installationPath)"
-          }
-          else
-          {
-            $instance = $instances[0]
-            Write-Host "Found more than one instance of Visual Studio, defaulting to: $($instance.installationPath)"
-            Write-Host "Other instances:"
-            foreach ($ins in $instances)
-            {
-              Write-Host "$ins.installationPath"
-            }
-          }
-          $msbuildPath = Join-Path $instance.installationPath "MSBuild\Current\Bin\amd64\msbuild.exe"
-          Write-Host "Setting MSBuild path to: $msbuildPath"
-          Write-Host "##vso[task.setvariable variable=msbuild18Path;]$msbuildPath"
-      continueOnError: false
-
-    - task: NuGetToolInstaller@1 
-    - task: NuGetCommand@2
-      displayName: 'Nuget: Restore Packages ($(SolutionName).slnx)'
-      inputs:
-        restoreSolution: '$(SourceFolder)\$(SolutionName).slnx'
-        feedsToUse: 'config'
-        nugetConfigPath: Nuget.config
-        includeNuGetOrg: false
-      continueOnError: false
-
-    - task: MSBuild@1
-      displayName: 'Build $(SolutionName) EXE'
-      inputs:
-        solution: '$(SourceFolder)\$(SolutionName).slnx'
-        msbuildLocationMethod: 'location'
-        msbuildLocation: $(msbuild18Path)
-        msbuildArguments: '/bl:$(SourceFolder)\Logs\msbuild.binlog;ProjectImports=None /p:Configuration=Debug /p:Platform="Any CPU" /p:OutputPath=$(SourceFolder)\Output'
-      continueOnError: false
-
-    - script: |
-        $(SolutionName).exe
-      displayName: 'Run $(SolutionName) EXE'
-      workingDirectory: $(SourceFolder)\Output
+    - ${{ if eq(parameters.PkgVersion, '') }}:
+      - task: NuGetCommand@2
+        displayName: 'NuGet Install ${{ parameters.PackageName }} Package'
+        inputs:
+          command: custom
+          arguments: 'install ${{ parameters.PackageName }} -ConfigFile $(Build.SourcesDirectory)\Nuget.config -OutputDirectory $(Agent.BuildDirectory)\IntegrationScripts'
+        continueOnError: false
