@@ -4,7 +4,7 @@ parameters:
   default: 'Azure.Core'
 - name: PkgVersion
   type: string
-  default: ''
+  default: ' '
 
 pr: none
 trigger: none
@@ -19,7 +19,7 @@ stages:
   - job: TestVariables
     displayName: Test Variables
     steps:
-    - ${{ if eq(parameters.PkgVersion, '') }}:
+    - ${{ if eq(parameters.PkgVersion, ' ') }}:
       - task: NuGetCommand@2
         displayName: 'NuGet Install ${{ parameters.PackageName }} Package'
         inputs:
