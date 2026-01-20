@@ -2,9 +2,6 @@ parameters:
 - name: PackageName
   type: string
   default: 'Azure.Core'
-- name: PkgVersion
-  type: string
-  default: ' '
 
 pr: none
 trigger: none
@@ -19,10 +16,6 @@ stages:
   - job: TestVariables
     displayName: Test Variables
     steps:
-    - ${{ if eq(parameters.PkgVersion, ' ') }}:
-      - task: NuGetCommand@2
-        displayName: 'NuGet Install ${{ parameters.PackageName }} Package'
-        inputs:
-          command: custom
-          arguments: 'install ${{ parameters.PackageName }} -ConfigFile $(Build.SourcesDirectory)\Nuget.config -OutputDirectory $(Agent.BuildDirectory)\IntegrationScripts'
-        continueOnError: false
+    - template: /template/InstallNugetPackage.yml@self
+      parameters:
+        PackageName: '${{ parameters.PackageName }}'

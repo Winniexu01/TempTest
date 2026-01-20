@@ -1,0 +1,59 @@
+# InstallNugetPackage.yml
+# 
+# Description:
+#   This template installs a NuGet package and moves it to a specified source folder.
+#   It supports installing either the latest version or a specific version of a package.
+
+parameters:
+- name: PackageName
+  type: string
+  default: 'VSEng.PI'
+- name: PkgVersion
+  type: string
+  default: ' '
+
+steps:
+- ${{ if eq(parameters.PkgVersion, ' ') }}:
+  - task: NuGetCommand@2
+    displayName: 'NuGet Install ${{ parameters.PackageName }} Package'
+    inputs:
+      command: custom
+      arguments: 'install ${{ parameters.PackageName }} -ConfigFile $(Build.SourcesDirectory)\Nuget.config -OutputDirectory $(Agent.BuildDirectory)\package'
+    continueOnError: false
+- ${{ if ne(parameters.PkgVersion, ' ') }}:
+  - task: NuGetCommand@2
+    displayName: 'NuGet Install ${{ parameters.PackageName }}.${{ parameters.PkgVersion }} Package'
+    inputs:
+      command: custom
+      arguments: 'install ${{ parameters.PackageName }} -Version ${{ parameters.PkgVersion }} -ConfigFile $(Build.SourcesDirectory)\Nuget.config -OutputDirectory $(Agent.BuildDirectory)\package'
+    continueOnError: false
+
+- pwsh: |
+    $success = $false
+    Get-ChildItem -Path '$(Agent.BuildDirectory)\package' -Directory -Filter '${{ parameters.PackageName }}*' | ForEach-Object {
+        $from = $_.FullName
+        $to = '$(SourceFolder)\${{ parameters.PackageName }}'
+        Write-Host "From: $from"
+        Write-Host "Destination: $to"
+
+        for ($i=0; $i -lt 3; $i++) {
+            try {
+                if ((Get-Item $from).Attributes -match "ReadOnly") {
+                    Write-Host "Cleanup ReadOnly Attribute"
+                    Set-ItemProperty $from -Name Attributes -Value ((Get-Item $from).Attributes -band -17)
+                }
+                Move-Item $from $to -Force
+                $success = $true
+                break
+            } catch {
+                Write-Warning "Move-Item failed: $_. Try #$($i+1)"
+                Start-Sleep -Seconds 1
+            }
+        }
+        if (-not $success) {
+            throw "Move-Item failed after retries"
+        }
+    }
+  displayName: 'Move ${{ parameters.PackageName }} Folder'
+  condition: succeeded()
+  continueOnError: false
