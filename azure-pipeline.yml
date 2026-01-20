@@ -1,9 +1,5 @@
 variables:
 - template: /template/variables.yml@self
-- name: PackageName
-  value: 'Azure.Core'
-- name: SourceFolder
-  value: $(Build.SourcesDirectory)
 
 name: $(date:yyyyMMdd)$(rev:.r)
 
@@ -22,7 +18,7 @@ stages:
     steps:
     - template: /template/InstallNugetPackage.yml@self
       parameters:
-        PackageName: '$(PackageName)'
+        PackageName: '$(packageName)'
 
     - script: |
         echo "Repository Name: $(vsRepo)"
