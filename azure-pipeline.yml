@@ -2,7 +2,7 @@ variables:
 - name: PackageName
   value: 'Azure.Core'
 - name: SourceFolder
-  value: $(Build.SourcesDirectory)\src
+  value: $(Build.SourcesDirectory)
 
 pr: none
 trigger: none
