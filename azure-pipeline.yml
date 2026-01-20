@@ -1,7 +1,8 @@
-parameters:
+variables:
 - name: PackageName
-  type: string
-  default: 'Azure.Core'
+  value: 'Azure.Core'
+- name: SourceFolder
+  value: $(Build.SourcesDirectory)\src
 
 pr: none
 trigger: none
@@ -18,4 +19,4 @@ stages:
     steps:
     - template: /template/InstallNugetPackage.yml@self
       parameters:
-        PackageName: '${{ parameters.PackageName }}'
+        PackageName: '$(PackageName)'
