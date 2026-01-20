@@ -1,13 +1,11 @@
 variables:
+- template: /template/variables.yml@self
 - name: PackageName
   value: 'Azure.Core'
 - name: SourceFolder
   value: $(Build.SourcesDirectory)
 
 name: $(date:yyyyMMdd)$(rev:.r)
-
-variables:
-- template: /template/variables.yml@self
 
 pr: none
 trigger: none
@@ -28,4 +26,4 @@ stages:
 
     - script: |
         echo "Repository Name: $(vsRepo)"
-      DisplayName: 'Display Variable'
+      displayName: 'Display Variable'
