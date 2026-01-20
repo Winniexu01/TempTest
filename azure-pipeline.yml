@@ -1,5 +1,7 @@
 variables:
 - template: /template/variables.yml@self
+- name: RepoName
+  value: $(vsRepo)
 
 name: $(date:yyyyMMdd)$(rev:.r)
 
@@ -16,10 +18,10 @@ stages:
   - job: TestVariables
     displayName: Test Variables
     steps:
-    - template: /template/InstallNugetPackage.yml@self
-      parameters:
-        PackageName: '$(packageName)'
+    # - template: /template/InstallNugetPackage.yml@self
+    #   parameters:
+    #     PackageName: '$(packageName)'
 
     - script: |
-        echo "Repository Name: $(vsRepo)"
+        echo "Repository Name: $(RepoName)"
       displayName: 'Display Variable'
