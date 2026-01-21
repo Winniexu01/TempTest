@@ -2,11 +2,11 @@
 # 
 # This template defines common variables used across Azure DevOps pipelines.
 parameters:
-- name: VSEng.PI.Version
+- name: VSEng_PI_Version
   type: string
   default: ' '
 
-- name: VSEng.Mailer.Version
+- name: VSEng_Mailer_Version
   type: string
   default: ' '
 
@@ -37,14 +37,14 @@ variables:
 - name: VSEng.PI
   value: VSEng.PI
 
-- name: VSEng.PI.Version
-  value: ${{ parameters.VSEng.PI.Version }}
+- name: VSEng_PI_Version
+  value: ${{ parameters.VSEng_PI_Version }}
 
 - name: VSEng.Mailer
   value: VSEng.Mailer
 
-- name: VSEng.Mailer.Version
-  value: ${{ parameters.VSEng.Mailer.Version }}
+- name: VSEng_Mailer_Version
+  value: ${{ parameters.VSEng_Mailer_Version }}
 
 # Deleted Branch Checking Settings
 - name: ArtifactName
