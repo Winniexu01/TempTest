@@ -10,20 +10,19 @@ parameters:
   default: 'VSEng.PI'
 - name: pkgVersion
   type: string
-  default: ' '
 - name: sourceFolder
   type: string
   default: $(Build.SourcesDirectory)\src
 
 steps:
-- ${{ if eq(parameters.pkgVersion, ' ') }}:
+- ${{ if eq(parameters.pkgVersion, '') }}:
   - task: NuGetCommand@2
     displayName: 'NuGet Install ${{ parameters.packageName }} Package'
     inputs:
       command: custom
       arguments: 'install ${{ parameters.packageName }} -ConfigFile $(Build.SourcesDirectory)\Nuget.config -OutputDirectory $(Agent.BuildDirectory)\package'
     continueOnError: false
-- ${{ if ne(parameters.pkgVersion, ' ') }}:
+- ${{ if ne(parameters.pkgVersion, '') }}:
   - task: NuGetCommand@2
     displayName: 'NuGet Install ${{ parameters.packageName }}.${{ parameters.pkgVersion }} Package'
     inputs:
