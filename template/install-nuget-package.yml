@@ -5,9 +5,12 @@
 #   It supports installing either the latest version or a specific version of a package.
 
 parameters:
-  packageName: 'VSEng.PI'
-  pkgVersion: ''
-  sourceFolder: $(Build.SourcesDirectory)\src
+- name: packageName
+  type: string
+- name: pkgVersion
+  type: string
+- name: sourceFolder
+  type: string
 
 steps:
 - pwsh: |
