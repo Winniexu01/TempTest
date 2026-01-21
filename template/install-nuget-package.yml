@@ -5,15 +5,9 @@
 #   It supports installing either the latest version or a specific version of a package.
 
 parameters:
-- name: packageName
-  type: string
-  default: 'VSEng.PI'
-- name: pkgVersion
-  type: string
-  default: ' '
-- name: sourceFolder
-  type: string
-  default: $(Build.SourcesDirectory)\src
+  packageName: 'VSEng.PI'
+  pkgVersion: ''
+  sourceFolder: $(Build.SourcesDirectory)\src
 
 steps:
 - pwsh: |
@@ -25,19 +19,19 @@ steps:
     } else {
       Write-Host "This is: ${{ parameters.pkgVersion }}"
     }
-- ${{ if eq(parameters.pkgVersion, ' ') }}:
+- ${{ if eq('parameters.pkgVersion', ' ') }}:
   - pwsh: |
       Write-Host "1Installing latest version of package: ${{ parameters.packageName }}"
     continueOnError: true
 - ${{ else }}:
   - pwsh: |
-      Write-Host "1Installing specific version of package: ${{ parameters.packageName }}. Version: ${{ parameters.pkgVersion }}"
+      Write-Host "1Installing specific version of package: ${{ parameters.packageName }}. Version: '${{ parameters.pkgVersion }}'"
     continueOnError: true
-- ${{ if eq(parameters.pkgVersion, '') }}:
+- ${{ if eq('parameters.pkgVersion', '') }}:
   - pwsh: |
       Write-Host "2Installing latest version of package: ${{ parameters.packageName }}"
     continueOnError: true
 - ${{ else }}:
   - pwsh: |
-      Write-Host "2Installing specific version of package: ${{ parameters.packageName }}. Version: ${{ parameters.pkgVersion }}"
+      Write-Host "2Installing specific version of package: ${{ parameters.packageName }}. Version: '${{ parameters.pkgVersion }}'"
     continueOnError: true
