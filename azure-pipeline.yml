@@ -34,5 +34,5 @@ stages:
       displayName: 'Display Variable'
     - template: /template/install-nuget-package.yml@self
       parameters:
-        packageName: $(VSEng_Mailer)
-        pkgVersion: $(VSEng_Mailer_Version)
+        packageName: ${{ variables.VSEng_Mailer }}
+        pkgVersion: ${{ variables.VSEng_Mailer_Version }}

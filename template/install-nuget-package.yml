@@ -7,10 +7,10 @@
 parameters:
 - name: packageName
   type: string
-  default: 'none'
+  default: ' '
 - name: pkgVersion
   type: string
-  default: 'none'
+  default: ' '
 
 steps:
 - pwsh: |
@@ -19,7 +19,7 @@ steps:
     Write-Host ("Show: >${{ parameters.pkgVersion }}<")
     Write-Host "Length: ${{ length(parameters.pkgVersion) }}"
   displayName: "Debug Param Bytes"
-- ${{ if ne(parameters.pkgVersion, 'none') }}:
+- ${{ if eq(parameters.pkgVersion, ' ') }}:
   - pwsh: |
       Write-Host "1Installing latest version of package: ${{ parameters.packageName }}"
     displayName: '1Install NuGet Package - Latest Version'
@@ -29,7 +29,7 @@ steps:
       Write-Host "1Installing specific version of package: ${{ parameters.packageName }}. Version: '${{ parameters.pkgVersion }}'"
     displayName: '1Install NuGet Package - Specific Version'
     continueOnError: true
-- ${{ if ne(parameters.pkgVersion, 'none') }}:
+- ${{ if eq(parameters.pkgVersion, '$(VSEng_Mailer_Version)') }}:
   - pwsh: |
       Write-Host "2Installing latest version of package: ${{ parameters.packageName }}"
     displayName: '2Install NuGet Package - Latest Version'
