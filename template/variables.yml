@@ -37,8 +37,14 @@ variables:
 - name: VSEng.PI
   value: VSEng.PI
 
+- name: VSEng.PI.Version
+  value: ${{ parameters.VSEng.PI.Version }}
+
 - name: VSEng.Mailer
   value: VSEng.Mailer
+
+- name: VSEng.Mailer.Version
+  value: ${{ parameters.VSEng.Mailer.Version }}
 
 # Deleted Branch Checking Settings
 - name: ArtifactName
