@@ -1,6 +1,10 @@
 parameters:
-  PIVersion: ''
-  MailerVersion: ''
+- name: PIVersion
+  type: string
+  default: ' '
+- name: MailerVersion
+  type: string
+  default: ' '
 
 variables:
 - template: /template/variables.yml@self
