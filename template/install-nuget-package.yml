@@ -10,13 +10,14 @@ parameters:
   default: 'VSEng.PI'
 - name: pkgVersion
   type: string
+  default: ' '
 - name: sourceFolder
   type: string
   default: $(Build.SourcesDirectory)\src
 
 steps:
 - pwsh: |
-    Write-Host ("pkgVersion is: '" + "${{ parameters.pkgVersion }}" + "'")
+    Write-Host ("pkgVersion is: ${{ parameters.pkgVersion }}")
     if ("${{ parameters.pkgVersion }}" -eq " ") {
       Write-Host "This is a space"
     } elseif ("${{ parameters.pkgVersion }}" -eq "") {
@@ -24,47 +25,19 @@ steps:
     } else {
       Write-Host "This is: ${{ parameters.pkgVersion }}"
     }
-- ${{ if eq(parameters.pkgVersion, '') }}:
-  - task: NuGetCommand@2
-    displayName: 'NuGet Install ${{ parameters.packageName }} Package'
-    inputs:
-      command: custom
-      arguments: 'install ${{ parameters.packageName }} -ConfigFile $(Build.SourcesDirectory)\Nuget.config -OutputDirectory $(Agent.BuildDirectory)\package'
-    continueOnError: false
+- ${{ if eq(parameters.pkgVersion, ' ') }}:
+  - pwsh: |
+      Write-Host "1Installing latest version of package: ${{ parameters.packageName }}"
+    continueOnError: true
 - ${{ else }}:
-  - task: NuGetCommand@2
-    displayName: 'NuGet Install ${{ parameters.packageName }}.${{ parameters.pkgVersion }} Package'
-    inputs:
-      command: custom
-      arguments: 'install ${{ parameters.packageName }} -Version ${{ parameters.pkgVersion }} -ConfigFile $(Build.SourcesDirectory)\Nuget.config -OutputDirectory $(Agent.BuildDirectory)\package'
-    continueOnError: false
-
-- pwsh: |
-    $success = $false
-    Get-ChildItem -Path '$(Agent.BuildDirectory)\package' -Directory -Filter '${{ parameters.packageName }}*' | ForEach-Object {
-        $from = $_.FullName
-        $to = '$(sourceFolder)\${{ parameters.packageName }}'
-        Write-Host "From: $from"
-        Write-Host "Destination: $to"
-
-        for ($i=0; $i -lt 3; $i++) {
-            try {
-                if ((Get-Item $from).Attributes -match "ReadOnly") {
-                    Write-Host "Cleanup ReadOnly Attribute"
-                    Set-ItemProperty $from -Name Attributes -Value ((Get-Item $from).Attributes -band -17)
-                }
-                Move-Item $from $to -Force
-                $success = $true
-                break
-            } catch {
-                Write-Warning "Move-Item failed: $_. Try #$($i+1)"
-                Start-Sleep -Seconds 1
-            }
-        }
-        if (-not $success) {
-            throw "Move-Item failed after retries"
-        }
-    }
-  displayName: 'Move ${{ parameters.packageName }} Folder'
-  condition: succeeded()
-  continueOnError: false
+  - pwsh: |
+      Write-Host "1Installing specific version of package: ${{ parameters.packageName }}. Version: ${{ parameters.pkgVersion }}"
+    continueOnError: true
+- ${{ if eq(parameters.pkgVersion, '') }}:
+  - pwsh: |
+      Write-Host "2Installing latest version of package: ${{ parameters.packageName }}"
+    continueOnError: true
+- ${{ else }}:
+  - pwsh: |
+      Write-Host "2Installing specific version of package: ${{ parameters.packageName }}. Version: ${{ parameters.pkgVersion }}"
+    continueOnError: true
