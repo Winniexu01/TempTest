@@ -45,22 +45,22 @@ stages:
           Write-Host "2Installing specific version: '${{ parameters.MailerVersion }}'"
         continueOnError: true
 
-    - ${{ if eq($(VSEng_Mailer_Version), ' ') }}:
+    - ${{ if eq(variables.VSEng_Mailer_Version, ' ') }}:
       - pwsh: |
           Write-Host "1Installing latest version of package"
         continueOnError: true
     - ${{ else }}:
       - pwsh: |
-          Write-Host "1Installing specific version: '$(VSEng_Mailer_Version)'"
+          Write-Host "1Installing specific version: '${{ variables.VSEng_Mailer_Version }}'"
         continueOnError: true
 
-    - ${{ if eq($(VSEng_Mailer_Version), '') }}:
+    - ${{ if eq(variables.VSEng_Mailer_Version, '') }}:
       - pwsh: |
           Write-Host "2Installing latest version of package"
         continueOnError: true
     - ${{ else }}:
       - pwsh: |
-          Write-Host "2Installing specific version: '$(VSEng_Mailer_Version)'"
+          Write-Host "2Installing specific version: '${{ variables.VSEng_Mailer_Version }}'"
         continueOnError: true
 
     - script: |
