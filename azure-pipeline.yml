@@ -9,8 +9,8 @@ parameters:
 variables:
 - template: /template/variables.yml@self
   parameters:
-    VSEng.PI.Version: $(PIVersion)
-    VSEng.Mailer.Version: $(MailerVersion)
+    VSEng.PI.Version: ${{ parameters.PIVersion }}
+    VSEng.Mailer.Version: ${{ parameters.MailerVersion }}
 - name: RepoName
   value: $(vsRepo)
 
