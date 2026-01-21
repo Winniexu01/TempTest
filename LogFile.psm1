@@ -39,4 +39,5 @@ Function Set-TaskResult {
     }
 }
 
-Export-ModuleMember -Function Write-LogMessage, Set-TaskResult
+Export-ModuleMember -Function Write-LogMessage
+Export-ModuleMember -Function Set-TaskResult
