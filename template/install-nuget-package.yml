@@ -22,7 +22,7 @@ steps:
       command: custom
       arguments: 'install ${{ parameters.packageName }} -ConfigFile $(Build.SourcesDirectory)\Nuget.config -OutputDirectory $(Agent.BuildDirectory)\package'
     continueOnError: false
-- ${{ if ne(parameters.pkgVersion, '') }}:
+- ${{ else }}:
   - task: NuGetCommand@2
     displayName: 'NuGet Install ${{ parameters.packageName }}.${{ parameters.pkgVersion }} Package'
     inputs:
