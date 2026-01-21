@@ -31,16 +31,13 @@ variables:
 - name: GitHygieneSC
   value: VSEng-GitHygieneSC
 
-- name: VSEngMailer
-  value: VSEngMailer
-
-- name: VSEng.PI
+- name: VSEng_PI
   value: VSEng.PI
 
 - name: VSEng_PI_Version
   value: ${{ parameters.VSEng_PI_Version }}
 
-- name: VSEng.Mailer
+- name: VSEng_Mailer
   value: VSEng.Mailer
 
 - name: VSEng_Mailer_Version
