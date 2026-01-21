@@ -23,7 +23,7 @@ variables:
   value: DevDiv
 
 - name: SourceFolder
-  value: $(Build.SourcesDirectory)\src
+  value: $(Build.SourcesDirectory)
 
 - name: SetupBackupRemote
   value: true

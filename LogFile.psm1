@@ -6,6 +6,9 @@ enum LogType {
     Error
 }
 
+$global:WarningCount = 0
+$global:ErrorCount = 0
+
 Function Write-LogMessage
 {
     Param
@@ -18,27 +21,22 @@ Function Write-LogMessage
 
     switch ($LogType)
     {
-        'Warning'     { Write-Warning "$Message" }
-        'Error'       { $Host.UI.WriteErrorLine("$Message") }
-        default       { Write-Host "Information: $Message" }
-    }
-    Write-Host "Next step1."
-
-    switch ($LogType)
-    {
-        ([LogType]::Warning)     { Write-Warning "$Message" }
-        ([LogType]::Error)       { $Host.UI.WriteErrorLine("$Message") }
+        ([LogType]::Warning)     { Write-Warning "$Message"; $global:WarningCount++ }
+        ([LogType]::Error)       { $Host.UI.WriteErrorLine("$Message"); $global:ErrorCount++ }
         ([LogType]::Information) { Write-Host "Information: $Message" }
     }
-    Write-Host "Next step2."
-
-    switch ($LogType)
-    {
-        ([LogType]::Warning)     { Write-Warning "$Message" }
-        ([LogType]::Error)       { Write-Error "$Message" }
-        ([LogType]::Information) { Write-Host "Information: $Message" }
-    }
-    Write-Host "Next step3."
 }
 
-Export-ModuleMember -Function Write-LogMessage
+Function Set-TaskResult {
+    if ($global:ErrorCount -gt 0) {
+        Write-Host "##vso[task.complete result=Failed;]ERROR! The process ran into $global:ErrorCount error(s)."
+    }
+    elseif ($global:WarningCount -gt 0) {
+        Write-Host "##vso[task.complete result=SucceededWithIssues;]WARNING! The process ran into $global:WarningCount warning(s)."
+    }
+    else {
+        Write-Host "##vso[task.complete result=Succeeded;]Process completed successfully."
+    }
+}
+
+Export-ModuleMember -Function Write-LogMessage, Set-TaskResult

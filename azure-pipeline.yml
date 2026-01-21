@@ -1,18 +1,10 @@
 parameters:
-- name: PIVersion
+- name: LogType
   type: string
-  default: ' '
-- name: MailerVersion
-  type: string
-  default: ' '
+  default: 'Information'
 
 variables:
 - template: /template/variables.yml@self
-  parameters:
-    VSEng_PI_Version: ${{ parameters.PIVersion }}
-    VSEng_Mailer_Version: ${{ parameters.MailerVersion }}
-- name: RepoName
-  value: $(vsRepo)
 
 name: $(date:yyyyMMdd)$(rev:.r)
 
@@ -27,12 +19,7 @@ stages:
   jobs:
   - job: Display_Variable
     steps:
-    - script: |
-        echo "Repository Name: $(RepoName)"
-        echo "PI Version: $(VSEng_PI_Version)"
-        echo "Mailer Version: $(VSEng_Mailer_Version)"
+    - pwsh: |
+        Import-Module $(SourceFolder)\VSRepo-Guidelines.psm1
+        Test-LogFileModule -LogType ${{ parameters.LogType }}
       displayName: 'Display Variable'
-    - template: /template/install-nuget-package.yml@self
-      parameters:
-        packageName: ${{ variables.VSEng_Mailer }}
-        pkgVersion: ${{ variables.VSEng_Mailer_Version }}
