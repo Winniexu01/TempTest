@@ -15,6 +15,15 @@ parameters:
   default: $(Build.SourcesDirectory)\src
 
 steps:
+- pwsh: |
+    Write-Host ("pkgVersion is: '" + "${{ parameters.pkgVersion }}" + "'")
+    if ("${{ parameters.pkgVersion }}" -eq " ") {
+      Write-Host "This is a space"
+    } elseif ("${{ parameters.pkgVersion }}" -eq "") {
+      Write-Host "This is an empty string"
+    } else {
+      Write-Host "This is: ${{ parameters.pkgVersion }}"
+    }
 - ${{ if eq(parameters.pkgVersion, '') }}:
   - task: NuGetCommand@2
     displayName: 'NuGet Install ${{ parameters.packageName }} Package'
