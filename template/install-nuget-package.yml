@@ -19,19 +19,24 @@ steps:
     } else {
       Write-Host "This is: ${{ parameters.pkgVersion }}"
     }
+  displayName: 'Debug pkgVersion'
 - ${{ if eq('parameters.pkgVersion', ' ') }}:
   - pwsh: |
       Write-Host "1Installing latest version of package: ${{ parameters.packageName }}"
+    displayName: 'qInstall NuGet Package - Latest Version'
     continueOnError: true
 - ${{ else }}:
   - pwsh: |
       Write-Host "1Installing specific version of package: ${{ parameters.packageName }}. Version: '${{ parameters.pkgVersion }}'"
+    displayName: '1Install NuGet Package - Specific Version'
     continueOnError: true
 - ${{ if eq('parameters.pkgVersion', '') }}:
   - pwsh: |
       Write-Host "2Installing latest version of package: ${{ parameters.packageName }}"
+    displayName: '2Install NuGet Package - Latest Version'
     continueOnError: true
 - ${{ else }}:
   - pwsh: |
       Write-Host "2Installing specific version of package: ${{ parameters.packageName }}. Version: '${{ parameters.pkgVersion }}'"
+    displayName: '2Install NuGet Package - Specific Version'
     continueOnError: true

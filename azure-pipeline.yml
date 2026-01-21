@@ -4,7 +4,7 @@ parameters:
   default: ' '
 - name: MailerVersion
   type: string
-  default: ' '
+  default: '111'
 
 variables:
 - template: /template/variables.yml@self
@@ -27,42 +27,6 @@ stages:
   jobs:
   - job: Display_Variable
     steps:
-    - ${{ if eq(parameters.MailerVersion, ' ') }}:
-      - pwsh: |
-          Write-Host "1Installing latest version of package"
-        continueOnError: true
-    - ${{ else }}:
-      - pwsh: |
-          Write-Host "1Installing specific version: '${{ parameters.MailerVersion }}'"
-        continueOnError: true
-
-    - ${{ if eq(parameters.MailerVersion, '') }}:
-      - pwsh: |
-          Write-Host "2Installing latest version of package"
-        continueOnError: true
-    - ${{ else }}:
-      - pwsh: |
-          Write-Host "2Installing specific version: '${{ parameters.MailerVersion }}'"
-        continueOnError: true
-
-    - ${{ if eq(variables.VSEng_Mailer_Version, ' ') }}:
-      - pwsh: |
-          Write-Host "1Installing latest version of package"
-        continueOnError: true
-    - ${{ else }}:
-      - pwsh: |
-          Write-Host "1Installing specific version: '${{ variables.VSEng_Mailer_Version }}'"
-        continueOnError: true
-
-    - ${{ if eq(variables.VSEng_Mailer_Version, '') }}:
-      - pwsh: |
-          Write-Host "2Installing latest version of package"
-        continueOnError: true
-    - ${{ else }}:
-      - pwsh: |
-          Write-Host "2Installing specific version: '${{ variables.VSEng_Mailer_Version }}'"
-        continueOnError: true
-
     - script: |
         echo "Repository Name: $(RepoName)"
         echo "PI Version: $(VSEng_PI_Version)"
