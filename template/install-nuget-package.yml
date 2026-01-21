@@ -11,19 +11,14 @@ parameters:
 
 steps:
 - pwsh: |
-    Write-Host ("pkgVersion is: ${{ parameters.pkgVersion }}")
-    if ("${{ parameters.pkgVersion }}" -eq " ") {
-      Write-Host "This is a space"
-    } elseif ("${{ parameters.pkgVersion }}" -eq "") {
-      Write-Host "This is an empty string"
-    } else {
-      Write-Host "This is: ${{ parameters.pkgVersion }}"
-    }
-  displayName: 'Debug pkgVersion'
+    $bytes = [System.Text.Encoding]::UTF8.GetBytes("${{ parameters.pkgVersion }}")
+    Write-Host ("ASCII: " + ($bytes -join ','))
+    Write-Host ("Show: >${{ parameters.pkgVersion }}<")
+  displayName: "Debug Param Bytes"
 - ${{ if ne(parameters.pkgVersion, ' ') }}:
   - pwsh: |
       Write-Host "1Installing latest version of package: ${{ parameters.packageName }}"
-    displayName: 'qInstall NuGet Package - Latest Version'
+    displayName: '1Install NuGet Package - Latest Version'
     continueOnError: true
 - ${{ else }}:
   - pwsh: |
