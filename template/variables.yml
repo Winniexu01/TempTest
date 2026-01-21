@@ -1,12 +1,83 @@
 # Variables.yml
 # 
 # This template defines common variables used across Azure DevOps pipelines.
+parameters:
+- name: VSEng.PI.Version
+  type: string
+  default: ' '
+
+- name: VSEng.Mailer.Version
+  type: string
+  default: ' '
 
 variables:
-# Common Repository Settings
-- name: vsRepo
+# Common Settings
+- name: VSRepo
   value: VS
-- name: packageName
-  value: 'Azure.Core'
-- name: sourceFolder
-  value: $(Build.SourcesDirectory)
+- name: RECONRepo
+  value: RECON
+- name: VSWhatsNewContentRepo
+  value: VSWhatsNewContent
+
+- name: ProjectName
+  value: DevDiv
+
+- name: SourceFolder
+  value: $(Build.SourcesDirectory)\src
+
+- name: SetupBackupRemote
+  value: true
+
+- name: GitHygieneSC
+  value: VSEng-GitHygieneSC
+
+- name: VSEngMailer
+  value: VSEngMailer
+
+- name: VSEng.PI
+  value: VSEng.PI
+
+- name: VSEng.Mailer
+  value: VSEng.Mailer
+
+# Deleted Branch Checking Settings
+- name: ArtifactName
+  value: BranchList
+- name: TargetPath
+  value: $(Build.ArtifactStagingDirectory)\$(ArtifactName)
+
+# Stale Branch Cleanup Settings
+- name: VSStaleAge
+  value: 180
+- name: VSLimitUserBranchCount
+  value: 5000
+
+- name: RECONStaleAge
+  value: 60
+- name: RECONLimitUserBranchCount
+  value: 5000
+
+- name: VSWhatsNewContentStaleAge
+  value: 60
+- name: VSWhatsNewContentLimitUserBranchCount
+  value: 5000
+
+# Old Tag Cleanup Settings
+- name: ExemptBranches
+  value: d14vsuldr
+- name: MonthsToKeepForOfficial
+  value: 6
+- name: MonthsToKeepForIntegration
+  value: 3
+- name: DropUrl
+  value: 'https://devdiv.artifacts.visualstudio.com'
+- name: LocalDropClientPath
+  value: '$(SourceFolder)\DropClient\drop.exe'
+- name: LocalDropsFilePath
+  value: '$(SourceFolder)\drops.json'
+
+# Abandon Expired PR Settings
+- name: SolutionName
+  value: AbandonExpiredPR
+- name: OutputFolder
+  value: $(Build.SourcesDirectory)\AbandonExpiredPR

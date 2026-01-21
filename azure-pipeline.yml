@@ -1,5 +1,16 @@
+parameters:
+- name: PIVersion
+  type: string
+  default: ' '
+- name: MailerVersion
+  type: string
+  default: ' '
+
 variables:
 - template: /template/variables.yml@self
+  parameters:
+    VSEng.PI.Version: $(PIVersion)
+    VSEng.Mailer.Version: $(MailerVersion)
 - name: RepoName
   value: $(vsRepo)
 
@@ -12,16 +23,12 @@ pool:
   vmImage: 'windows-latest'
 
 stages:
-- stage: Test
-  displayName: Test Stage
+- stage: stage
   jobs:
-  - job: TestVariables
-    displayName: Test Variables
+  - job: Display_Variable
     steps:
-    # - template: /template/InstallNugetPackage.yml@self
-    #   parameters:
-    #     PackageName: '$(packageName)'
-
     - script: |
         echo "Repository Name: $(RepoName)"
+        echo "PI Version: $(VSEng.PI.Version)"
+        echo "Mailer Version: $(VSEng.Mailer.Version)"
       displayName: 'Display Variable'
