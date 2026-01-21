@@ -9,8 +9,6 @@ parameters:
   type: string
 - name: pkgVersion
   type: string
-- name: sourceFolder
-  type: string
 
 steps:
 - pwsh: |
