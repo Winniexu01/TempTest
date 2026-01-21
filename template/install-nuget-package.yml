@@ -38,13 +38,3 @@ steps:
       Write-Host "2Installing specific version of package: ${{ parameters.packageName }}. Version: '${{ parameters.pkgVersion }}'"
     displayName: '2Install NuGet Package - Specific Version'
     continueOnError: true
-- ${{ if ne(parameters.pkgVersion, null) }}:
-  - pwsh: |
-      Write-Host "3Installing latest version of package: ${{ parameters.packageName }}"
-    displayName: '3Install NuGet Package - Latest Version'
-    continueOnError: true
-- ${{ else }}:
-  - pwsh: |
-      Write-Host "3Installing specific version of package: ${{ parameters.packageName }}. Version: '${{ parameters.pkgVersion }}'"
-    displayName: '3Install NuGet Package - Specific Version'
-    continueOnError: true
