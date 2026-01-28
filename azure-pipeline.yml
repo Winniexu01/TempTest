@@ -95,29 +95,11 @@ stages:
 
     - ${{ if or(ne(parameters.scheduledWorkItems, ' '), ne(parameters.prWorkItems, ' '), ne(parameters.noAutoWorkItems, ' ')) }}:
       - pwsh: |
-          # Validate: all three parameters must be provided together, or none at all
-          $scheduled = '${{ parameters.scheduledWorkItems }}'.Trim()
-          $pr = '${{ parameters.prWorkItems }}'.Trim()
-          $noAuto = '${{ parameters.noAutoWorkItems }}'.Trim()
-          
-          $providedCount = @($scheduled, $pr, $noAuto | Where-Object { $_ -ne '' -and $_ -ne ' ' }).Count
-          
-          if ($providedCount -gt 0 -and $providedCount -lt 3) {
-            Write-Error "All three work item parameters must be provided together, or leave all empty."
-            Write-Error "  scheduledWorkItems: '$scheduled'"
-            Write-Error "  prWorkItems: '$pr'"  
-            Write-Error "  noAutoWorkItems: '$noAuto'"
-            exit 1
-          }
-          
-          Write-Host "Validation passed. Provided parameters: $providedCount/3"
-          
-          # Set environment variables for the EXE
-          Write-Host "##vso[task.setvariable variable=ScheduledWorkItems]$scheduled"
-          Write-Host "##vso[task.setvariable variable=PRWorkItems]$pr"
-          Write-Host "##vso[task.setvariable variable=NoAutoWorkItems]$noAuto"
+          Write-Host "##vso[task.setvariable variable=ScheduledWorkItems]'${{ parameters.scheduledWorkItems }}'.Trim()"
+          Write-Host "##vso[task.setvariable variable=PRWorkItems]'${{ parameters.prWorkItems }}'.Trim()"
+          Write-Host "##vso[task.setvariable variable=NoAutoWorkItems]'${{ parameters.noAutoWorkItems }}'.Trim()"
           Write-Host "##vso[task.setvariable variable=DEBUG_MODE]true"
-        displayName: 'Validate and Setup Work Items for Debugging'
+        displayName: 'Setup Work Items for Debugging'
         continueOnError: false
 
     - script: |
