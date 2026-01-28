@@ -11,12 +11,26 @@ namespace Testing
             {
                 Console.WriteLine("DEBUG_MODE is enabled...");
 
-                var prWorkItems = Environment.GetEnvironmentVariable("PRWorkItems") ?? "";
-                var scheduledWorkItems = Environment.GetEnvironmentVariable("ScheduledWorkItems") ?? "";
-                var noAutoWorkItems = Environment.GetEnvironmentVariable("NoAutoWorkItems") ?? "";
-                Console.WriteLine($"PR Work Items: {prWorkItems}");
-                Console.WriteLine($"Scheduled Work Items: {scheduledWorkItems}");
-                Console.WriteLine($"No Auto Work Items: {noAutoWorkItems}");
+                var prWorkItems = new List<string>();
+                var scheduledWorkItems = new List<string>();
+                var NoAutoIntegrations = new List<string>();
+
+                scheduledWorkItems.Add(Environment.GetEnvironmentVariable("ScheduledWorkItems"));
+                prWorkItems.Add(Environment.GetEnvironmentVariable("PRWorkItems"));
+                NoAutoIntegrations.Add(Environment.GetEnvironmentVariable("NoAutoWorkItems"));
+
+                foreach(var item in scheduledWorkItems)
+                {
+                    Console.WriteLine($"Scheduled Work Item: {item}");
+                }
+                foreach (var item in prWorkItems)
+                {
+                    Console.WriteLine($"PR Work Item: {item}");
+                }
+                foreach (var item in NoAutoIntegrations)
+                {
+                    Console.WriteLine($"No Auto Integration Work Item: {item}");
+                }
             }
             else
             {
