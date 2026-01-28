@@ -1,12 +1,24 @@
 parameters:
-- name: LogType
+- name: scheduledWorkItems
+  displayName: 'Scheduled Work Item IDs (comma-separated, replaces Scheduled query)'
   type: string
-  default: 'Information'
+  default: ' '
+- name: prWorkItems
+  displayName: 'PR Work Item IDs (comma-separated, replaces PullRequest query)'
+  type: string
+  default: ' '
+- name: noAutoWorkItems
+  displayName: 'NoAuto Work Item IDs (comma-separated, replaces NoAuto query)'
+  type: string
+  default: ' '
 
 variables:
-- template: /template/variables.yml@self
-
-name: $(date:yyyyMMdd)$(rev:.r)
+- name: SolutionName
+  # value: MultipleProj
+  value: Testing
+- name: SourceFolder
+  # value: $(Build.SourcesDirectory)\MultipleProj
+  value: $(Build.SourcesDirectory)\Testing
 
 pr: none
 trigger: none
@@ -15,11 +27,105 @@ pool:
   vmImage: 'windows-latest'
 
 stages:
-- stage: stage
+- stage: Test
+  displayName: Test Stage
   jobs:
-  - job: Display_Variable
+  - job: TestVariables
+    displayName: Test Variables
     steps:
-    - pwsh: |
-        Import-Module $(SourceFolder)\VSRepo-Guidelines.psm1
-        Test-LogFileModule -LogType ${{ parameters.LogType }}
-      displayName: 'Display Variable'
+    - task: PowerShell@2
+      displayName: Find MSBuild
+      inputs:
+        targetType: inline
+        script: |
+          $vswherePath = "${Env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
+          $instances = & $vswherePath @("-utf8", "-version", "[17.0,19.0)", "-latest", "-format", "json") | ConvertFrom-Json
+          if ($instances.Length -eq 0)
+          {
+            Write-Warning "Could not find any complete instances of Visual Studio."
+          }
+          elseif ($instances.Length -eq 1)
+          {
+            $instance = $instances[0]
+            Write-Host "Found only one instance of Visual Studio: $($instance.installationPath)"
+          }
+          else
+          {
+            $instance = $instances[0]
+            Write-Host "Found more than one instance of Visual Studio, defaulting to: $($instance.installationPath)"
+            Write-Host "Other instances:"
+            foreach ($ins in $instances)
+            {
+              Write-Host "$ins.installationPath"
+            }
+          }
+          $msbuildPath = Join-Path $instance.installationPath "MSBuild\Current\Bin\amd64\msbuild.exe"
+          Write-Host "Setting MSBuild path to: $msbuildPath"
+          Write-Host "##vso[task.setvariable variable=msbuild18Path;]$msbuildPath"
+      continueOnError: false
+
+    - task: NuGetToolInstaller@1 
+    - task: NuGetCommand@2
+      displayName: 'Nuget: Restore Packages ($(SolutionName).slnx)'
+      inputs:
+        restoreSolution: '$(SourceFolder)\$(SolutionName).slnx'
+        feedsToUse: 'config'
+        nugetConfigPath: Nuget.config
+        includeNuGetOrg: false
+      continueOnError: false
+
+    - task: MSBuild@1
+      displayName: 'Build $(SolutionName) EXE'
+      inputs:
+        solution: '$(SourceFolder)\$(SolutionName).slnx'
+        msbuildLocationMethod: 'location'
+        msbuildLocation: $(msbuild18Path)
+        msbuildArguments: '/bl:$(SourceFolder)\Logs\msbuild.binlog;ProjectImports=None /p:Configuration=Debug /p:Platform="Any CPU" /p:OutputPath=$(SourceFolder)\Output'
+      continueOnError: false
+
+    - script: |
+        $(SolutionName).exe
+      displayName: 'Run $(SolutionName) EXE'
+      workingDirectory: $(SourceFolder)\Output
+      env:
+        DEBUG_MODE: $(DEBUG_MODE)
+        ScheduledWorkItems: $(ScheduledWorkItems)
+        PRWorkItems: $(PRWorkItems)
+        NoAutoWorkItems: $(NoAutoWorkItems)
+
+    - ${{ if or(ne(parameters.scheduledWorkItems, ' '), ne(parameters.prWorkItems, ' '), ne(parameters.noAutoWorkItems, ' ')) }}:
+      - pwsh: |
+          # Validate: all three parameters must be provided together, or none at all
+          $scheduled = '${{ parameters.scheduledWorkItems }}'.Trim()
+          $pr = '${{ parameters.prWorkItems }}'.Trim()
+          $noAuto = '${{ parameters.noAutoWorkItems }}'.Trim()
+          
+          $providedCount = @($scheduled, $pr, $noAuto | Where-Object { $_ -ne '' -and $_ -ne ' ' }).Count
+          
+          if ($providedCount -gt 0 -and $providedCount -lt 3) {
+            Write-Error "All three work item parameters must be provided together, or leave all empty."
+            Write-Error "  scheduledWorkItems: '$scheduled'"
+            Write-Error "  prWorkItems: '$pr'"  
+            Write-Error "  noAutoWorkItems: '$noAuto'"
+            exit 1
+          }
+          
+          Write-Host "Validation passed. Provided parameters: $providedCount/3"
+          
+          # Set environment variables for the EXE
+          Write-Host "##vso[task.setvariable variable=ScheduledWorkItems]$scheduled"
+          Write-Host "##vso[task.setvariable variable=PRWorkItems]$pr"
+          Write-Host "##vso[task.setvariable variable=NoAutoWorkItems]$noAuto"
+          Write-Host "##vso[task.setvariable variable=DEBUG_MODE]true"
+        displayName: 'Validate and Setup Work Items for Debugging'
+        continueOnError: false
+
+    - script: |
+        $(SolutionName).exe
+      displayName: 'Run $(SolutionName) EXE'
+      workingDirectory: $(SourceFolder)\Output
+      env:
+        DEBUG_MODE: $(DEBUG_MODE)
+        ScheduledWorkItems: $(ScheduledWorkItems)
+        PRWorkItems: $(PRWorkItems)
+        NoAutoWorkItems: $(NoAutoWorkItems)
