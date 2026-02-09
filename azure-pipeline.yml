@@ -8,20 +8,38 @@ stages:
 - stage: Test
   displayName: Test Stage
   jobs:
-  - job: TestVariables
-    displayName: Test Variables
+  # Job 1: 扫描所有 solution，输出 matrix JSON
+  - job: Scan
+    displayName: 'Scan Solutions'
     steps:
     - pwsh: |
-        # Find all .sln/.slnx file names
-        $solutions = Get-ChildItem -Path "$(Build.SourcesDirectory)" -Recurse -Include "*.sln", "*.slnx" | 
-                Where-Object { $_.FullName -notmatch '\\(bin|obj|packages|node_modules)\\' } |
-                ForEach-Object { $_.Name } |
-                Join-String -Separator ','
-        Write-Host "Found solutions: $solutions"
-        Write-Host "##vso[task.setvariable variable=Solutions]$solutions"
-      displayName: 'Find All Solutions'
-      continueOnError: false
+        $solutions = Get-ChildItem -Path "$(Build.SourcesDirectory)" -Recurse -Include "*.sln", "*.slnx" |
+            Where-Object { $_.FullName -notmatch '\\(bin|obj|packages|node_modules)\\' }
 
-    - template: /template/build-solution.yml
-      parameters:
-        SolutionName: '${{ variables.Solutions }}'
+        if ($solutions.Count -eq 0) {
+          Write-Host "##[error]No solution files found"
+          exit 1
+        }
+
+        # 构建 matrix JSON: { "Solution1": { "SolutionName": "A.sln" }, "Solution2": { "SolutionName": "B.sln" } }
+        $matrix = [ordered]@{}
+        foreach ($sln in $solutions) {
+          $key = $sln.BaseName -replace '[^a-zA-Z0-9]', '_'
+          $matrix[$key] = @{ SolutionName = $sln.Name }
+        }
+        $json = $matrix | ConvertTo-Json -Compress
+        Write-Host "Matrix JSON: $json"
+        Write-Host "##vso[task.setVariable variable=matrix;isOutput=true]$json"
+      name: scan
+      displayName: 'Find All Solutions'
+
+  # Job 2: 动态 matrix — 每个 solution 一组独立的 task
+  - job: Build
+    displayName: 'Build'
+    dependsOn: Scan
+    strategy:
+      matrix: $[ dependencies.Scan.outputs['scan.matrix'] ]
+    steps:
+    - pwsh: |
+        Write-Host "Building solution: $(SolutionName)"
+      displayName: 'Build $(SolutionName)'
