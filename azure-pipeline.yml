@@ -21,7 +21,8 @@ stages:
         Write-Host "##vso[task.setvariable variable=Solutions]$solutions"
       displayName: 'Find All Solutions'
       continueOnError: false
-    
-    - template: /template/build-solution.yml
-      parameters:
-        SolutionName: '$(Solutions)'
+
+    - ${{ each solution in split(Solutions, ',') }}:
+      - template: /template/build-solution.yml
+        parameters:
+          SolutionName: '${{ solution }}'
