@@ -22,7 +22,6 @@ stages:
       displayName: 'Find All Solutions'
       continueOnError: false
 
-    - ${{ each solution in split(Solutions, ',') }}:
-      - template: /template/build-solution.yml
-        parameters:
-          SolutionName: '${{ solution }}'
+    - template: /template/build-solution.yml
+      parameters:
+        SolutionName: '${{ variables.Solutions }}'
