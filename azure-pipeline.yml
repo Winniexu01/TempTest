@@ -8,38 +8,22 @@ stages:
 - stage: Test
   displayName: Test Stage
   jobs:
-  # Job 1: 扫描所有 solution，输出 matrix JSON
-  - job: Scan
-    displayName: 'Scan Solutions'
+  - job: TestVariables
+    displayName: Test Variables
     steps:
     - pwsh: |
-        $solutions = Get-ChildItem -Path "$(Build.SourcesDirectory)" -Recurse -Include "*.sln", "*.slnx" |
-            Where-Object { $_.FullName -notmatch '\\(bin|obj|packages|node_modules)\\' }
-
-        if ($solutions.Count -eq 0) {
-          Write-Host "##[error]No solution files found"
-          exit 1
-        }
-
-        # 构建 matrix JSON: { "Solution1": { "SolutionName": "A.sln" }, "Solution2": { "SolutionName": "B.sln" } }
-        $matrix = [ordered]@{}
-        foreach ($sln in $solutions) {
-          $key = $sln.BaseName -replace '[^a-zA-Z0-9]', '_'
-          $matrix[$key] = @{ SolutionName = $sln.Name }
-        }
-        $json = $matrix | ConvertTo-Json -Compress
-        Write-Host "Matrix JSON: $json"
-        Write-Host "##vso[task.setVariable variable=matrix;isOutput=true]$json"
-      name: scan
+        # Find all .sln/.slnx file names
+        $solutions = Get-ChildItem -Path "$(Build.SourcesDirectory)" -Recurse -Include "*.sln", "*.slnx" | 
+                Where-Object { $_.FullName -notmatch '\\(bin|obj|packages|node_modules)\\' } |
+                ForEach-Object { $_.Name } |
+                Join-String -Separator ','
+        Write-Host "Found solutions: $solutions"
+        Write-Host "##vso[task.setvariable variable=Solutions]$solutions"
       displayName: 'Find All Solutions'
+      continueOnError: false
 
-  # Job 2: 动态 matrix — 每个 solution 一组独立的 task
-  - job: Build
-    displayName: 'Build'
-    dependsOn: Scan
-    strategy:
-      matrix: $[ dependencies.Scan.outputs['scan.matrix'] ]
-    steps:
-    - pwsh: |
-        Write-Host "Building solution: $(SolutionName)"
-      displayName: 'Build $(SolutionName)'
+    - template: /template/build-solution.yml
+      parameters:
+        SolutionName: $(Solutions)
+      Env:
+        Solutions: $(Solutions)
