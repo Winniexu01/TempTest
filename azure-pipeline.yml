@@ -25,5 +25,5 @@ stages:
     - template: /template/build-solution.yml
       parameters:
         SolutionName: $(Solutions)
-      Env:
+      env:
         Solutions: $(Solutions)
