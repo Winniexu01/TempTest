@@ -9,3 +9,4 @@ steps:
 - ${{ each solution in split(parameters.SolutionName, ',') }}:
   - pwsh: |
       Write-Host "Testing solution: ${{ solution }}"  
+    displayName: 'Build ${{ solution }}'

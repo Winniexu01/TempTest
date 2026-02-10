@@ -36,4 +36,3 @@ stages:
     - template: /template/build-solution.yml
       parameters:
         SolutionName: $(solutionList)
-      displayName: 'Build $(SolutionName)'
