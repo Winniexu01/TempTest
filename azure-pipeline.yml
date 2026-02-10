@@ -8,22 +8,32 @@ stages:
 - stage: Test
   displayName: Test Stage
   jobs:
-  - job: TestVariables
-    displayName: Test Variables
+  - job: Scan
+    displayName: 'Scan Solutions'
     steps:
     - pwsh: |
         # Find all .sln/.slnx file names
-        $solutions = Get-ChildItem -Path "$(Build.SourcesDirectory)" -Recurse -Include "*.sln", "*.slnx" | 
-                Where-Object { $_.FullName -notmatch '\\(bin|obj|packages|node_modules)\\' } |
+        $solutions = Get-ChildItem -Path "$(Build.SourcesDirectory)" -Recurse -Include "*.sln", "*.slnx" |
+            Where-Object { $_.FullName -notmatch '\\(bin|obj|packages|node_modules)\\' } |
                 ForEach-Object { $_.Name } |
                 Join-String -Separator ','
-        Write-Host "Found solutions: $solutions"
-        Write-Host "##vso[task.setvariable variable=Solutions]$solutions"
-      displayName: 'Find All Solutions'
-      continueOnError: false
 
+        if ($solutions.Count -eq 0) {
+          Write-Host "##[error]No solution files found"
+          exit 1
+        }
+
+        Write-Host "##vso[task.setVariable variable=Solutions;isOutput=true]$solutions"
+      name: scan
+      displayName: 'Find All Solutions'
+
+  - job: Build
+    displayName: 'Build'
+    dependsOn: Scan
+    variables:
+      solutionList: $[ dependencies.Scan.outputs['scan.Solutions'] ]
+    steps:
     - template: /template/build-solution.yml
       parameters:
-        SolutionName: $(Solutions)
-      env:
-        Solutions: $(Solutions)
+        SolutionName: $(solutionList)
+      displayName: 'Build $(SolutionName)'
