@@ -6,7 +6,6 @@ parameters:
 steps:
 - task: NuGetToolInstaller@1
 
-- ${{ each solution in split(parameters.SolutionName, ',') }}:
-  - pwsh: |
-      Write-Host "Testing solution: ${{ solution }}"  
-    displayName: 'Build ${{ solution }}'
+- pwsh: |
+    Write-Host "Testing solution: ${{ parameters.SolutionName }}"  
+  displayName: 'Build ${{ parameters.SolutionName }}'

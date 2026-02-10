@@ -12,27 +12,32 @@ stages:
     displayName: 'Scan Solutions'
     steps:
     - pwsh: |
-        # Find all .sln/.slnx file names
         $solutions = Get-ChildItem -Path "$(Build.SourcesDirectory)" -Recurse -Include "*.sln", "*.slnx" |
-            Where-Object { $_.FullName -notmatch '\\(bin|obj|packages|node_modules)\\' } |
-                ForEach-Object { $_.Name } |
-                Join-String -Separator ','
+            Where-Object { $_.FullName -notmatch '\\(bin|obj|packages|node_modules)\\' }
 
         if ($solutions.Count -eq 0) {
           Write-Host "##[error]No solution files found"
           exit 1
         }
 
-        Write-Host "##vso[task.setVariable variable=Solutions;isOutput=true]$solutions"
+        # matrix JSON: { "Solution1": { "SolutionName": "A.sln" }, "Solution2": { "SolutionName": "B.sln" } }
+        $matrix = [ordered]@{}
+        foreach ($sln in $solutions) {
+          $key = $sln.BaseName -replace '[^a-zA-Z0-9]', '_'
+          $matrix[$key] = @{ SolutionName = $sln.Name }
+        }
+        $json = $matrix | ConvertTo-Json -Compress
+        Write-Host "Matrix JSON: $json"
+        Write-Host "##vso[task.setVariable variable=matrix;isOutput=true]$json"
       name: scan
       displayName: 'Find All Solutions'
 
   - job: Build
     displayName: 'Build'
     dependsOn: Scan
-    variables:
-      solutionList: $[ dependencies.Scan.outputs['scan.Solutions'] ]
+    strategy:
+      matrix: $[ dependencies.Scan.outputs['scan.matrix'] ]
     steps:
     - template: /template/build-solution.yml
       parameters:
-        SolutionName: $(solutionList)
+        SolutionName: $(SolutionName)
