@@ -1,5 +1,9 @@
-pr: none
 trigger: none
+
+pr:
+  branches:
+    include:
+    - main
 
 pool:
   vmImage: 'windows-latest'
