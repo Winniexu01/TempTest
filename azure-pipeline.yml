@@ -12,7 +12,7 @@ stages:
 - stage: Test
   displayName: Test Stage
   jobs:
-  - job: Scan
+  - job: Scan 
     displayName: 'Scan Solutions'
     steps:
     - pwsh: |
