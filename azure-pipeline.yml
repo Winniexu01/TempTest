@@ -16,32 +16,7 @@ stages:
     displayName: 'Scan Solutions'
     steps:
     - pwsh: |
-        $solutions = Get-ChildItem -Path "$(Build.SourcesDirectory)" -Recurse -Include "*.sln", "*.slnx" |
-            Where-Object { $_.FullName -notmatch '\\(bin|obj|packages|node_modules)\\' }
+        Import-Module $(Build.SourcesDirectory)\VSRepo-Guidelines.psm1
 
-        if ($solutions.Count -eq 0) {
-          Write-Host "##[error]No solution files found"
-          exit 1
-        }
-
-        # matrix JSON: { "Solution1": { "SolutionName": "A.sln" }, "Solution2": { "SolutionName": "B.sln" } }
-        $matrix = [ordered]@{}
-        foreach ($sln in $solutions) {
-          $key = $sln.BaseName -replace '[^a-zA-Z0-9]', '_'
-          $matrix[$key] = @{ SolutionName = $sln.Name }
-        }
-        $json = $matrix | ConvertTo-Json -Compress
-        Write-Host "Matrix JSON: $json"
-        Write-Host "##vso[task.setVariable variable=matrix;isOutput=true]$json"
-      name: scan
-      displayName: 'Find All Solutions'
-
-  - job: Build
-    displayName: 'Build'
-    dependsOn: Scan
-    strategy:
-      matrix: $[ dependencies.Scan.outputs['scan.matrix'] ]
-    steps:
-    - template: /template/build-solution.yml
-      parameters:
-        SolutionName: $(SolutionName)
+        Test-LogFileModule -LogType 'Information'
+      displayName: 'Test'

@@ -7,8 +7,10 @@ Function Test-LogFileModule {
         [Parameter(Mandatory=$false)]
         [string]$LogType = 'Information'
     )
-    Write-Host "Testing LogFile module..."
-    Write-LogMessage -Message "This is a $LogType message." -LogType $LogType
+                    Write-LogMessage -Message "1Policy Url: $($policy.PolicyUrl)
+             Policy ID: $($policy.PolicyId)" -LogType $LogType
+    Write-LogMessage -Message "2Policy Url: 
+             Policy ID: " -LogType $LogType
     Set-TaskResult
 }
 
