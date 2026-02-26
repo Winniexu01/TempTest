@@ -9,8 +9,7 @@ Function Test-LogFileModule {
     )
                     Write-LogMessage -Message "1Policy Url: $($policy.PolicyUrl)
              Policy ID: $($policy.PolicyId)" -LogType $LogType
-    Write-LogMessage -Message "2Policy Url: 
-             Policy ID: " -LogType $LogType
+    Write-LogMessage -Message "2Policy Url: nPolicy ID: " -LogType $LogType
     Set-TaskResult
 }
 
