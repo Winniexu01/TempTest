@@ -2,6 +2,9 @@ parameters:
   - name: PRId
     type: string
     default: ' '
+  - name: PRId2
+    type: string
+    default: ' '
 
 trigger: none
 
@@ -21,12 +24,23 @@ stages:
     displayName: 'Scan Solutions'
     steps:
     - pwsh: |
-        if ("${{ parameters.PRId }}" -eq " ") {
+        $prId = "${{ parameters.PRId }}".Trim()
+        if ($prId -eq "") {
           Write-Host "PRId is not provided, defaulting to empty string."
           $extrParm = ""
         } else {
-          Write-Host "PRId is provided: ${{ parameters.PRId }}"
-          $extrParm = "PRId:${{ parameters.PRId }}"
+          Write-Host "PRId is provided: $prId"
+          $extrParm = " PRId:$prId"
         }
-        Write-Host "extrParm: '$extrParm'"
+        Write-Host "'$extrParm'"
+        
+        $prId2 = "${{ parameters.PRId2 }}".Trim()
+        if ($prId2 -eq "") {
+          Write-Host "PRId2 is not provided, defaulting to empty string."
+          $extrParm2 = ""
+        } else {
+          Write-Host "PRId2 is provided: $prId2"
+          $extrParm2 = " PRId2:$prId2"
+        }
+        Write-Host "'$extrParm2'"
       displayName: 'Test'
