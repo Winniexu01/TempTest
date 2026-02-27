@@ -39,21 +39,19 @@ stages:
     displayName: 'Scan Solutions'
     steps:
     - pwsh: |
-        $paramString = "OrgName:${{ parameters.OrgName }} `
-        ProjectName:${{ parameters.ProjectName }} `
-        RepoName:${{ parameters.RepoName }} `
-        VsUri:${{ parameters.VSBaseUrl }} `
-        ExpirePROlderThan:${{ parameters.ExpiredDays }} `
-        MaxPRToAbandon:${{ parameters.MaxPRToAbandon }}"
+        $exeArgs = @(
+          "OrgName:${{ parameters.OrgName }}"
+          "ProjectName:${{ parameters.ProjectName }}"
+          "RepoName:${{ parameters.RepoName }}"
+          "VsUri:${{ parameters.VSBaseUrl }}"
+          "ExpirePROlderThan:${{ parameters.ExpiredDays }}"
+          "MaxPRToAbandon:${{ parameters.MaxPRToAbandon }}"
+        )
 
-        $prId = "${{ parameters.PRId }}".Trim()
-        if ($prId -eq "") {
-          $extrParm = ""
-          Write-Host "PRId is not provided, defaulting to empty string."
-        } else {
-          $extrParm = " PRId:$prId"
-          Write-Host "PRId is provided: $prId"
+        if ($prId -ne "") {
+          $exeArgs += "PRId:$prId"
         }
 
-        Write-Host "Running: exe $paramString$extrParm AccessToken:***"
+        $exeArgs += "AccessToken:$env:ACCESSTOKEN"
+        Write-Host "Running: $exePath @exeArgs"
       displayName: 'Test'
