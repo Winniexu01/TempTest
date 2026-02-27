@@ -1,8 +1,5 @@
 parameters:
-  - name: OrgName
-    type: string
-    default: 'DevDiv'
-  - name: ProjectName
+  - name: PRId
     type: string
     default: ' '
 
@@ -23,7 +20,13 @@ stages:
   - job: Scan 
     displayName: 'Scan Solutions'
     steps:
-    - pwsh: |
-        Write-Host "OrgName: '${{ parameters.OrgName }}'TTT"
-        Write-Host "ProjectName: '${{ parameters.ProjectName }}'TTT"
+    - script: |
+        if ("${{ parameters.PRId }}" -eq " ") {
+          Write-Host "PRId is not provided, defaulting to empty string."
+          $PRId = ""
+        } else {
+          Write-Host "PRId is provided: ${{ parameters.PRId }}"
+          $PRId = ${{ parameters.PRId }}
+        }
+        Write-Host "PRId: $PRId"
       displayName: 'Test'
