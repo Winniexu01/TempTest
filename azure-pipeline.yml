@@ -21,7 +21,7 @@ stages:
     displayName: 'Scan Solutions'
     steps:
     - script: |
-        if ("${{ parameters.PRId }}" -eq " ") {
+        if ("${{ parameters.PRId }}" == " ") {
           Write-Host "PRId is not provided, defaulting to empty string."
           $PRId = ""
         } else {
