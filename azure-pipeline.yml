@@ -28,5 +28,5 @@ stages:
           Write-Host "PRId is provided: ${{ parameters.PRId }}"
           $PRId = ${{ parameters.PRId }}
         }
-        Write-Host "PRId: $PRId"
+        Write-Host "PRId: '$PRId'"
       displayName: 'Test'
