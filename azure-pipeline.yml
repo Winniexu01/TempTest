@@ -24,6 +24,6 @@ stages:
     displayName: 'Scan Solutions'
     steps:
     - pwsh: |
-        Write-Host "OrgName: ${{ parameters.OrgName }}"
-        Write-Host "ProjectName: ${{ parameters.ProjectName }}"
+        Write-Host "OrgName: ${{ parameters.OrgName }}TTT"
+        Write-Host "ProjectName: ${{ parameters.ProjectName }}TTT"
       displayName: 'Test'
