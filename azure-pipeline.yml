@@ -33,7 +33,7 @@ stages:
           $extrParm = " PRId:$prId"
         }
         Write-Host "'$extrParm'"
-        
+
         $prId2 = "${{ parameters.PRId2 }}".Trim()
         if ($prId2 -eq "") {
           Write-Host "PRId2 is not provided, defaulting to empty string."
@@ -43,4 +43,11 @@ stages:
           $extrParm2 = " PRId2:$prId2"
         }
         Write-Host "'$extrParm2'"
+
+        $paramString = "OrgName:${{ parameters.OrgName }} ProjectName:${{ parameters.ProjectName }} RepoName:${{ parameters.RepoName }} VsUri:${{ parameters.VSBaseUrl }} ExpirePROlderThan:${{ parameters.ExpiredDays }} MaxPRToAbandon:${{ parameters.MaxPRToAbandon }} AccessToken:$env:ACCESSTOKEN"
+        Write-Host "Parameter string: '$paramString'"
+        $paramString += $extrParm
+        Write-Host "Parameter string: '$paramString'"
+        $paramString += $extrParm2
+        Write-Host "Final parameter string: '$paramString'"
       displayName: 'Test'
