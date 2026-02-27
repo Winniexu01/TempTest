@@ -20,13 +20,13 @@ stages:
   - job: Scan 
     displayName: 'Scan Solutions'
     steps:
-    - script: |
-        if ("${{ parameters.PRId }}" == " ") {
+    - pwsh: |
+        if ("${{ parameters.PRId }}" -eq " ") {
           Write-Host "PRId is not provided, defaulting to empty string."
-          $PRId = ""
+          $extrParm = ""
         } else {
           Write-Host "PRId is provided: ${{ parameters.PRId }}"
-          $PRId = ${{ parameters.PRId }}
+          $extrParm = "PRId:${{ parameters.PRId }}"
         }
-        Write-Host "PRId: '$PRId'"
+        Write-Host "extrParm: '$extrParm'"
       displayName: 'Test'
