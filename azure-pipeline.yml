@@ -5,6 +5,24 @@ parameters:
   - name: PRId2
     type: string
     default: ' '
+  - name: OrgName
+    type: string
+    default: 'DevDiv'
+  - name: ProjectName
+    type: string
+    default: 'DevDiv'
+  - name: RepoName
+    type: string
+    default: 'VS'
+  - name: VSBaseUrl
+    type: string
+    default: 'https://dev.azure.com'
+  - name: ExpiredDays
+    type: string
+    default: '90'
+  - name: MaxPRToAbandon
+    type: string
+    default: '50'
 
 trigger: none
 
