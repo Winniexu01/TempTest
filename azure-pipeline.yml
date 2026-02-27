@@ -55,5 +55,5 @@ stages:
           Write-Host "PRId is provided: $prId"
         }
 
-        Write-Host "Running: $(SolutionName).exe $paramString$extrParm AccessToken:***"
+        Write-Host "Running: exe $paramString$extrParm AccessToken:***"
       displayName: 'Test'
