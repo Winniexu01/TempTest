@@ -1,3 +1,11 @@
+parameters:
+  - name: OrgName
+    type: string
+    default: 'DevDiv'
+  - name: ProjectName
+    type: string
+    default: ' '
+
 trigger: none
 
 pr:
@@ -16,7 +24,6 @@ stages:
     displayName: 'Scan Solutions'
     steps:
     - pwsh: |
-        Import-Module $(Build.SourcesDirectory)\VSRepo-Guidelines.psm1
-
-        Test-LogFileModule -LogType 'Information'
+        Write-Host "OrgName: ${{ parameters.OrgName }}"
+        Write-Host "ProjectName: ${{ parameters.ProjectName }}"
       displayName: 'Test'
