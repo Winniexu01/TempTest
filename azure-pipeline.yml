@@ -8,18 +8,6 @@ parameters:
   - name: ProjectName
     type: string
     default: 'DevDiv'
-  - name: RepoName
-    type: string
-    default: 'VS'
-  - name: VSBaseUrl
-    type: string
-    default: 'https://dev.azure.com'
-  - name: ExpiredDays
-    type: string
-    default: '90'
-  - name: MaxPRToAbandon
-    type: string
-    default: '50'
 
 trigger: none
 
@@ -39,13 +27,23 @@ stages:
     displayName: 'Scan Solutions'
     steps:
     - pwsh: |
+        $prId = "${{ parameters.PRId }}".Trim()
+        $paramString =
+          "OrgName:${{ parameters.OrgName }} " +
+          "ProjectName:${{ parameters.ProjectName }}"
+
+        if ($prId -ne "") {
+          $exeArgs += "PRId:$prId"
+        }
+
+        $exeArgs += "AccessToken:$env:ACCESSTOKEN"
+        Write-Host "Running: exePath @exeArgs"
+      displayName: 'Test1'
+    - pwsh: |
+        $prId = "${{ parameters.PRId }}".Trim()
         $exeArgs = @(
           "OrgName:${{ parameters.OrgName }}"
           "ProjectName:${{ parameters.ProjectName }}"
-          "RepoName:${{ parameters.RepoName }}"
-          "VsUri:${{ parameters.VSBaseUrl }}"
-          "ExpirePROlderThan:${{ parameters.ExpiredDays }}"
-          "MaxPRToAbandon:${{ parameters.MaxPRToAbandon }}"
         )
 
         if ($prId -ne "") {
@@ -53,5 +51,5 @@ stages:
         }
 
         $exeArgs += "AccessToken:$env:ACCESSTOKEN"
-        Write-Host "Running: $exePath @exeArgs"
-      displayName: 'Test'
+        Write-Host "Running: exePath @exeArgs"
+      displayName: 'Test2'
