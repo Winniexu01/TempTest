@@ -2,6 +2,7 @@ parameters:
   - name: PRId # tttt
     type: string
     default: ' '
+    dispalyName: 'PR ID (optional, for testing purpose only)'
   - name: OrgName
     type: string
     default: 'DevDiv'
