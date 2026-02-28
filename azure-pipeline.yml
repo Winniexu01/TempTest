@@ -28,7 +28,7 @@ stages:
     steps:
     - pwsh: |
         $prId = "${{ parameters.PRId }}".Trim()
-        $paramString =
+        $exeArgs =
           "OrgName:${{ parameters.OrgName }} " +
           "ProjectName:${{ parameters.ProjectName }}"
 
@@ -37,7 +37,7 @@ stages:
         }
 
         $exeArgs += "AccessToken:$env:ACCESSTOKEN"
-        Write-Host "Running: exePath @exeArgs"
+        Write-Host "Running: exePath $exeArgs"
       displayName: 'Test1'
     - pwsh: |
         $prId = "${{ parameters.PRId }}".Trim()
@@ -51,5 +51,5 @@ stages:
         }
 
         $exeArgs += "AccessToken:$env:ACCESSTOKEN"
-        Write-Host "Running: exePath @exeArgs"
+        Write-Host "Running: exePath $exeArgs"
       displayName: 'Test2'
