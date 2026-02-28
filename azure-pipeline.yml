@@ -1,6 +1,7 @@
 parameters:
   - name: PRId
     type: string
+    # tttt
     default: ' '
   - name: OrgName
     type: string
@@ -27,23 +28,29 @@ stages:
     displayName: 'Scan Solutions'
     steps:
     - pwsh: |
-        $prId = "${{ parameters.PRId }}".Trim()
-        $exeArgs =
+        $paramString =
           "OrgName:${{ parameters.OrgName }} " +
-          "ProjectName:${{ parameters.ProjectName }}"
+          "ProjectName:${{ parameters.ProjectName }} " +
+          "RepoName:${{ parameters.RepoName }} " +
+          "VsUri:${{ parameters.VSBaseUrl }} " +
+          "ExpirePROlderThan:${{ parameters.ExpiredDays }} " +
+          "MaxPRToAbandon:${{ parameters.MaxPRToAbandon }}"
 
         if ($prId -ne "") {
           $exeArgs += "PRId:$prId"
         }
 
         $exeArgs += "AccessToken:$env:ACCESSTOKEN"
-        Write-Host "Running: exePath $exeArgs"
-      displayName: 'Test1'
+        Write-Host "Running: $exePath @exeArgs"
+      displayName: 'Test'
     - pwsh: |
-        $prId = "${{ parameters.PRId }}".Trim()
         $exeArgs = @(
           "OrgName:${{ parameters.OrgName }}"
           "ProjectName:${{ parameters.ProjectName }}"
+          "RepoName:${{ parameters.RepoName }}"
+          "VsUri:${{ parameters.VSBaseUrl }}"
+          "ExpirePROlderThan:${{ parameters.ExpiredDays }}"
+          "MaxPRToAbandon:${{ parameters.MaxPRToAbandon }}"
         )
 
         if ($prId -ne "") {
@@ -51,5 +58,5 @@ stages:
         }
 
         $exeArgs += "AccessToken:$env:ACCESSTOKEN"
-        Write-Host "Running: exePath $exeArgs"
-      displayName: 'Test2'
+        Write-Host "Running: $exePath @exeArgs"
+      displayName: 'Test'
