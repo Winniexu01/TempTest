@@ -29,5 +29,7 @@ variables:
 
 - name: MajorMinor
   value: '1.0'
+- name: Patch
+  value: $[counter(variables['MajorMinor'], 1)]
 - name: PackageVersion
-  value: '$(MajorMinor).$(Build.BuildId)'
+  value: '$(MajorMinor).$(Patch)'
