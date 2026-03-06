@@ -23,8 +23,10 @@ stages:
     - task: NuGetCommand@2
       displayName: NuGet restore
       inputs:
-        solution: '**/$(SolutionName).csproj'
-        feedRestore: $(EngineeringFeedGUID)
+        command: 'restore'
+        restoreSolution: '**/$(SolutionName).csproj'
+        feedsToUse: 'select'
+        vstsFeed: $(EngineeringFeedGUID)
     - task: VSBuild@1
       displayName: 'Build solution - $(SolutionName)'
       inputs:
