@@ -20,7 +20,7 @@ stages:
 
     - template: /template/build-solution.yml@self
       parameters:
-        SolutionName: '$(SolutionName).sln'
+        SolutionName: '$(SolutionName).slnx'
 
     - task: NuGetCommand@2
       displayName: 'NuGet pack'
