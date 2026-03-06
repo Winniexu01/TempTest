@@ -1,86 +1,33 @@
-# Variables.yml
-# 
-# This template defines common variables used across Azure DevOps pipelines.
 parameters:
-- name: VSEng_PI_Version
+- name: SolutionName
   type: string
-  default: ' '
-
-- name: VSEng_Mailer_Version
-  type: string
-  default: ' '
+  default: ''
 
 variables:
-# Common Settings
-- name: VSRepo
-  value: VS
-- name: RECONRepo
-  value: RECON
-- name: VSWhatsNewContentRepo
-  value: VSWhatsNewContent
-
-- name: ProjectName
-  value: DevDiv
-
+#Solution specific variables
+- name: SolutionName
+  value: ${{ parameters.SolutionName }}
 - name: SourceFolder
   value: $(Build.SourcesDirectory)
-
-- name: SetupBackupRemote
-  value: true
-
-- name: GitHygieneSC
-  value: VSEng-GitHygieneSC
-
-- name: VSEng_PI
-  value: VSEng.PI
-
-- name: VSEng_PI_Version
-  value: ${{ parameters.VSEng_PI_Version }}
-
-- name: VSEng_Mailer
-  value: VSEng.Mailer
-
-- name: VSEng_Mailer_Version
-  value: ${{ parameters.VSEng_Mailer_Version }}
-
-# Deleted Branch Checking Settings
-- name: ArtifactName
-  value: BranchList
-- name: TargetPath
-  value: $(Build.ArtifactStagingDirectory)\$(ArtifactName)
-
-# Stale Branch Cleanup Settings
-- name: VSStaleAge
-  value: 180
-- name: VSLimitUserBranchCount
-  value: 5000
-
-- name: RECONStaleAge
-  value: 60
-- name: RECONLimitUserBranchCount
-  value: 5000
-
-- name: VSWhatsNewContentStaleAge
-  value: 60
-- name: VSWhatsNewContentLimitUserBranchCount
-  value: 5000
-
-# Old Tag Cleanup Settings
-- name: ExemptBranches
-  value: d14vsuldr
-- name: MonthsToKeepForOfficial
-  value: 6
-- name: MonthsToKeepForIntegration
-  value: 3
-- name: DropUrl
-  value: 'https://devdiv.artifacts.visualstudio.com'
-- name: LocalDropClientPath
-  value: '$(SourceFolder)\DropClient\drop.exe'
-- name: LocalDropsFilePath
-  value: '$(SourceFolder)\drops.json'
-
-# Abandon Expired PR Settings
-- name: SolutionName
-  value: AbandonExpiredPR
 - name: OutputFolder
-  value: $(Build.SourcesDirectory)\AbandonExpiredPR
+  value: $(SourceFolder)/Output
+
+# Common Settings
+- name: resourceGroup
+  value: VSEng-DDBLDTelemetry
+- name: azureSqlServer
+  value: vseng-ddbld
+- name: ruleName
+  value: CollectCloudBuildDataTest
+- name: keyVaultName
+  value: DLAB2
+- name: CertName
+  value: OneCert-ddbuild-devdivbuildsystems-cim2
+
+- name: IcMGeneratorName
+  value: IcMGenerator
+
+- name: MajorMinor
+  value: '1.0'
+- name: PackageVersion
+  value: '$(MajorMinor).$(Build.BuildId)'

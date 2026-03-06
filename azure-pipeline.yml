@@ -1,62 +1,32 @@
-parameters:
-  - name: PRId
-    displayName: 'PR ID (optional, for testing purpose only)'
-    type: string
-    default: ' '
-  - name: OrgName
-    type: string
-    default: 'DevDiv'
-  - name: ProjectName
-    type: string
-    default: 'DevDiv'
+variables:
+- template: /azure-pipelines/template/variables.yml@self
+  parameters:
+    SolutionName: ConsoleApp1
+
+name: $(date:yyyyMMdd)$(rev:.r)
 
 trigger: none
-
-pr:
-  branches:
-    include:
-    - main
-
+pr: none
 pool:
   vmImage: 'windows-latest'
-
 stages:
-- stage: Test
-  displayName: Test Stage
+- stage: stage
+  displayName: 'Console App 1'
   jobs:
-  - job: Scan 
-    displayName: 'Scan Solutions'
+  - job: Phase_1
+    displayName: DDBuildScripts-ConsoleApp1
     steps:
-    - pwsh: |
-        $paramString =
-          "OrgName:${{ parameters.OrgName }} " +
-          "ProjectName:${{ parameters.ProjectName }} " +
-          "RepoName:${{ parameters.RepoName }} " +
-          "VsUri:${{ parameters.VSBaseUrl }} " +
-          "ExpirePROlderThan:${{ parameters.ExpiredDays }} " +
-          "MaxPRToAbandon:${{ parameters.MaxPRToAbandon }}"
+    - template: /azure-pipelines/template/find-msbuild.yml@self
 
-        if ($prId -ne "") {
-          $exeArgs += "PRId:$prId"
-        }
+    - template: /azure-pipelines/template/build-solution.yml@self
+      parameters:
+        SolutionName: '$(SolutionName).sln'
 
-        $exeArgs += "AccessToken:$env:ACCESSTOKEN"
-        Write-Host "Running: $exePath @exeArgs"
-      displayName: 'Test'
-    - pwsh: |
-        $exeArgs = @(
-          "OrgName:${{ parameters.OrgName }}"
-          "ProjectName:${{ parameters.ProjectName }}"
-          "RepoName:${{ parameters.RepoName }}"
-          "VsUri:${{ parameters.VSBaseUrl }}"
-          "ExpirePROlderThan:${{ parameters.ExpiredDays }}"
-          "MaxPRToAbandon:${{ parameters.MaxPRToAbandon }}"
-        )
-
-        if ($prId -ne "") {
-          $exeArgs += "PRId:$prId"
-        }
-
-        $exeArgs += "AccessToken:$env:ACCESSTOKEN"
-        Write-Host "Running: $exePath @exeArgs"
-      displayName: 'Test'
+    - task: NuGetCommand@2
+      displayName: 'NuGet pack'
+      inputs:
+        command: 'pack'
+        packagesToPack: '**/$(SolutionName).csproj'   # 或 **/*.nuspec
+        configuration: 'Release'
+        versioningScheme: 'byEnvVar'
+        versionEnvVar: 'PackageVersion'

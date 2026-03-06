@@ -6,6 +6,20 @@ parameters:
 steps:
 - task: NuGetToolInstaller@1
 
-- pwsh: |
-    Write-Host "Testing solution: ${{ parameters.SolutionName }}"  
+- task: NuGetCommand@2
+  displayName: 'NuGet Restore (${{ parameters.SolutionName }})'
+  inputs:
+    restoreSolution: '**/${{ parameters.SolutionName }}'
+    feedsToUse: 'config'
+    nugetConfigPath: Nuget.config
+    includeNuGetOrg: false
+  continueOnError: false
+
+- task: MSBuild@1
   displayName: 'Build ${{ parameters.SolutionName }}'
+  inputs:
+    solution: '**/${{ parameters.SolutionName }}'
+    msbuildLocationMethod: 'location'
+    msbuildLocation: $(msbuild18Path)
+    msbuildArguments: '/bl:$(Build.ArtifactStagingDirectory)/Logs/${{ parameters.SolutionName }}.binlog;ProjectImports=None /p:Configuration=Release /p:Platform="Any CPU" /p:OutputPath=$(OutputFolder)'
+  continueOnError: false
