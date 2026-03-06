@@ -27,9 +27,9 @@ variables:
 - name: IcMGeneratorName
   value: IcMGenerator
 
-- name: MajorMinor
-  value: '1.0'
-- name: Patch
-  value: $[counter(variables['MajorMinor'], 1)]
-- name: PackageVersion
-  value: '$(MajorMinor).$(Patch)'
+- name: BuildConfiguration
+  value: release
+- name: BuildPlatform
+  value: any cpu
+- name: EngineeringFeedGUID
+  value: '6ab25b4b-23f1-44ad-a02c-3a9346d92cc7'

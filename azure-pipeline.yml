@@ -16,19 +16,18 @@ stages:
   - job: Phase_1
     displayName: DDBuildScripts-ConsoleApp1
     steps:
-    - template: /template/find-msbuild.yml@self
-
-    - template: /template/build-solution.yml@self
-      parameters:
-        SolutionName: '$(SolutionName).slnx'
-
-    - task: NuGetCommand@2
-      displayName: 'NuGet pack'
+    - task: NuGetToolInstaller@0
+      displayName: Use NuGet
       inputs:
-        command: 'pack'
-        packagesToPack: '**/$(SolutionName).csproj'   # 或 **/*.nuspec
-        configuration: 'Release'
-        buildProperties: 'OutputPath=$(OutputFolder)'
-        packDestination: '$(Build.ArtifactStagingDirectory)/nupkg'
-        versioningScheme: 'byEnvVar'
-        versionEnvVar: 'PackageVersion'
+        checkLatest: true
+    - task: NuGetCommand@2
+      displayName: NuGet restore
+      inputs:
+        solution: '**/$(SolutionName).csproj'
+        feedRestore: $(EngineeringFeedGUID)
+    - task: VSBuild@1
+      displayName: 'Build solution - $(SolutionName)'
+      inputs:
+        solution: '**/$(SolutionName).slnx'
+        platform: $(BuildPlatform)
+        configuration: $(BuildConfiguration)
