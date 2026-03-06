@@ -1,5 +1,5 @@
 variables:
-- template: /azure-pipelines/template/variables.yml@self
+- template: /template/variables.yml@self
   parameters:
     SolutionName: ConsoleApp1
 
@@ -16,9 +16,9 @@ stages:
   - job: Phase_1
     displayName: DDBuildScripts-ConsoleApp1
     steps:
-    - template: /azure-pipelines/template/find-msbuild.yml@self
+    - template: /template/find-msbuild.yml@self
 
-    - template: /azure-pipelines/template/build-solution.yml@self
+    - template: /template/build-solution.yml@self
       parameters:
         SolutionName: '$(SolutionName).sln'
 
