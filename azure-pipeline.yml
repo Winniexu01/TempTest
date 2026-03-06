@@ -28,5 +28,7 @@ stages:
         command: 'pack'
         packagesToPack: '**/$(SolutionName).csproj'   # 或 **/*.nuspec
         configuration: 'Release'
+        buildProperties: 'Configuration=Release;OutputPath=$(OutputFolder)'
+        packDestination: '$(Build.ArtifactStagingDirectory)/nupkg'
         versioningScheme: 'byEnvVar'
         versionEnvVar: 'PackageVersion'
