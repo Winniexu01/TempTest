@@ -40,7 +40,7 @@ flowchart TD
 
     P --> Q{tagsArr.Count >= 5?}
     Q -- 是 --> R[curCleanupCount += tagsArr.Count]
-    R --> S[Remove-Tags(tagsArr)]
+    R --> S[Remove-Tags tagsArr]
     S --> T[tagsArr 重置为空]
     Q -- 否 --> U{curCleanupCount >= maxCleanupCount?}
     T --> U
@@ -51,7 +51,7 @@ flowchart TD
     B -->|遍历结束| W[循环结束后]
     V --> W
     W --> X{tagsArr 还有剩余?}
-    X -- 是 --> Y[Remove-Tags(tagsArr)]
+    X -- 是 --> Y[Remove-Tags tagsArr ]
     X -- 否 --> Z[结束]
     Y --> Z
 ```
