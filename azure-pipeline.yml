@@ -16,20 +16,6 @@ stages:
   - job: Phase_1
     displayName: DDBuildScripts-ConsoleApp1
     steps:
-    - task: NuGetToolInstaller@0
-      displayName: Use NuGet
-      inputs:
-        checkLatest: true
-    - task: NuGetCommand@2
-      displayName: NuGet restore
-      inputs:
-        command: 'restore'
-        restoreSolution: '**/$(SolutionName).csproj'
-        feedsToUse: 'select'
-        vstsFeed: $(EngineeringFeedGUID)
-    - task: VSBuild@1
-      displayName: 'Build solution - $(SolutionName)'
-      inputs:
-        solution: '**/$(SolutionName).slnx'
-        platform: $(BuildPlatform)
-        configuration: $(BuildConfiguration)
+    - pwsh: |
+        Write-Host "Get-Env: $(Get-ChildItem env:)"
+      displayName: 'Get Environment Variables'
