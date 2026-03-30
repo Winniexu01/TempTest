@@ -16,8 +16,14 @@ stages:
   - job: Phase_1
     displayName: DDBuildScripts-ConsoleApp1
     steps:
+    - pwsh: |
+        New-Item -Path "$(Build.ArtifactStagingDirectory)\Publish" -ItemType Directory -Force
+      condition: always()
+
     - task: PublishBuildArtifacts@1
       inputs:
         PathtoPublish: '$(Build.ArtifactStagingDirectory)\Publish' # string. Required. Path to publish. Default: $(Build.ArtifactStagingDirectory).
         ArtifactName: 'Publish' # string. Required. Artifact name. Default: drop.
+        publishLocation: FilePath
+        TargetPath: '$(Build.ArtifactStagingDirectory)\Publish' # string. Optional. Default: $(Build.ArtifactStagingDirectory)\$(Build.BuildId).
       condition: always()
