@@ -20,5 +20,4 @@ stages:
       inputs:
         PathtoPublish: '$(Build.ArtifactStagingDirectory)\Publish' # string. Required. Path to publish. Default: $(Build.ArtifactStagingDirectory).
         ArtifactName: 'Publish' # string. Required. Artifact name. Default: drop.
-        publishLocation: Container
       condition: always()
