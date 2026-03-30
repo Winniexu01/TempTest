@@ -16,6 +16,9 @@ stages:
   - job: Phase_1
     displayName: DDBuildScripts-ConsoleApp1
     steps:
-    - pwsh: |
-        Write-Host "Get-Env: $(Get-ChildItem env:)"
-      displayName: 'Get Environment Variables'
+    - task: PublishBuildArtifacts@1
+      inputs:
+        PathtoPublish: '$(Build.ArtifactStagingDirectory)\Publish' # string. Required. Path to publish. Default: $(Build.ArtifactStagingDirectory).
+        ArtifactName: 'Publish' # string. Required. Artifact name. Default: drop.
+        publishLocation: Container
+      condition: always()
