@@ -8,7 +8,7 @@ name: $(date:yyyyMMdd)$(rev:.r)
 trigger: none
 pr: none
 pool:
-  vmImage: 'windows-latest'
+  vmImage: 'windows-2022'
 stages:
 - stage: stage
   displayName: 'Console App 1'
