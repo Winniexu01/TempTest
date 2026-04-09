@@ -10,7 +10,7 @@ variables:
 - name: SourceFolder
   value: $(Build.SourcesDirectory)
 - name: OutputFolder
-  value: $(SourceFolder)\Output
+  value: $(SourceFolder)\${SolutionName}
 
 # Common Settings
 - name: resourceGroup

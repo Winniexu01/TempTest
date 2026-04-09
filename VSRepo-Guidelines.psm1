@@ -2,15 +2,10 @@ write-host "Loading module VSRepo-Guidelines"
 $scriptDir = Split-Path $script:MyInvocation.MyCommand.Path
 Import-Module -Name "$scriptDir\LogFile.psm1" -Force
 
-Function Test-LogFileModule {
-    Param(
-        [Parameter(Mandatory=$false)]
-        [string]$LogType = 'Information'
-    )
-                    Write-LogMessage -Message "1Policy Url: $($policy.PolicyUrl)
-             Policy ID: $($policy.PolicyId)" -LogType $LogType
-    Write-LogMessage -Message "2Policy Url: `r`n             Policy ID: " -LogType $LogType
-    Set-TaskResult
+Function Test-Module {
+    Write-Host "Script directory: $scriptDir"
+    Write-Host "Working directory: $(Get-Location)"
+    Write-Host "System default working directory: $env:SYSTEM_DEFAULTWORKINGDIRECTORY"
 }
 
-Export-ModuleMember -Function Test-LogFileModule
+Export-ModuleMember -Function Test-Module
