@@ -1,3 +1,6 @@
+parameters:
+  PowerShellVersion: '7.5.5'
+
 name: $(date:yyyyMMdd)$(rev:.r)
 
 trigger: none
@@ -12,17 +15,7 @@ stages:
     displayName: TempTest
     steps:
     - task: PowerShell@2
-      displayName: "Run winget using Windows PowerShell 5.1"
-      inputs:
-        pwsh: false
-        targetType: inline
-        script: |
-          $PSVersionTable.PSVersion
-          where.exe winget
-          winget --version
-          winget list --id Microsoft.PowerShell --source winget --disable-interactivity *> $null
-    - task: PowerShell@2
-      displayName: Check PowerShell Version (Before Installing PowerShell 7)
+      displayName: Check PowerShell Version (Before Installing PowerShell ${{ parameters.PowerShellVersion }})
       inputs:
         pwsh: true
         targetType: inline
@@ -31,14 +24,14 @@ stages:
           $PSVersionTable.PSVersion
           (Get-Command pwsh).Source
     - task: PowerShell@2
-      displayName: Install PowerShell
+      displayName: Install PowerShell ${{ parameters.PowerShellVersion }}
       inputs:
-        pwsh: false
+        pwsh: true
         targetType: inline
         script: |
           try {
-            Write-Host "Installing PowerShell 7.5.5.0 via winget (pipeline output suppressed)..."
-            $ver = "7.5.5"
+            Write-Host "Installing PowerShell ${{ parameters.PowerShellVersion }} via winget (pipeline output suppressed)..."
+            $ver = "${{ parameters.PowerShellVersion }}"
             $msi = "PowerShell-$ver-win-x64.msi"
             $url = "https://github.com/PowerShell/PowerShell/releases/download/v$ver/$msi"
             $dst = Join-Path $env:AGENT_TEMPDIRECTORY $msi
@@ -54,11 +47,29 @@ stages:
             $global:LASTEXITCODE = 0
           }
     - task: PowerShell@2
-      displayName: Check PowerShell Version (After Installing PowerShell 7)
+      displayName: Check PowerShell Version (After Installing PowerShell ${{ parameters.PowerShellVersion }})
       inputs:
         pwsh: true
         targetType: inline
         script: |
-          Write-Host "After installing PowerShell"
-          $PSVersionTable.PSVersion
+          Write-Host "Checking PowerShell Version after installation"
           (Get-Command pwsh).Source
+          $requiredVersionText = "${{ parameters.PowerShellVersion }}"
+          $requiredVersion = [System.Management.Automation.SemanticVersion]$requiredVersionText
+          $currentVersion = $PSVersionTable.PSVersion
+
+          Write-Host "Required PowerShell version: $requiredVersion"
+          Write-Host "Current PowerShell version:  $currentVersion"
+
+          # Compare Major.Minor.Patch to avoid Revision mismatches from platform differences.
+          $isMatch = (
+            $currentVersion.Major -eq $requiredVersion.Major -and
+            $currentVersion.Minor -eq $requiredVersion.Minor -and
+            $currentVersion.Patch -eq $requiredVersion.Patch
+          )
+
+          if (-not $isMatch) {
+            throw "PowerShell version mismatch. Required: $requiredVersion, Current: $currentVersion"
+          }
+
+          Write-Host "PowerShell version check passed."
