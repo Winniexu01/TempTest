@@ -28,7 +28,7 @@ stages:
     - task: PowerShell@2
       displayName: Install PowerShell ${{ parameters.PowerShellVersion }}
       inputs:
-        pwsh: true
+        pwsh: false
         targetType: inline
         script: |
           try {
