@@ -1,4 +1,0 @@
-<Solution>
-  <Project Path="MultipleProj/MultipleProj.csproj" />
-  <Project Path="ProjB/ProjB.csproj" />
-</Solution>

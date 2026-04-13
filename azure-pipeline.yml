@@ -1,22 +1,42 @@
-variables:
-- template: /template/variables.yml@self
-  parameters:
-    SolutionName: ConsoleApp1
-
 name: $(date:yyyyMMdd)$(rev:.r)
 
 trigger: none
 pr: none
 pool:
-  vmImage: 'windows-2022'
+  vmImage: 'windows-latest'
 stages:
 - stage: stage
   displayName: 'Console App 1'
   jobs:
   - job: Phase_1
-    displayName: DDBuildScripts-ConsoleApp1
+    displayName: TempTest
     steps:
-    - pwsh: |
-        Import-Module $(SourceFolder)\VSRepo-Guidelines.psm1
-        Test-Module
-      condition: always()
+    - task: PowerShell@2
+      inputs:
+        pwsh: true
+        targetType: inline
+        script: |
+          $PSVersionTable.PSVersion
+          (Get-Command pwsh).Source
+
+          Write-Host "Checking PowerShell version..."
+          $PSVersionTable.PSVersion
+          
+          try {
+            Write-Host "Attempting to install PowerShell 7.5.5.0 via winget..."
+            & winget install --id Microsoft.PowerShell --version 7.5.5.0 --source winget --silent
+            if ($LASTEXITCODE -ne 0) {
+              Write-Warning "winget install failed with exit code $LASTEXITCODE"
+            }
+          }
+          catch {
+            Write-Warning "winget command failed: $_"
+          }
+          
+          if (Test-Path "C:\Program Files\PowerShell\7\pwsh.exe") {
+            & "C:\Program Files\PowerShell\7\pwsh.exe" -NoLogo -NoProfile -Command '$PSVersionTable.PSVersion'
+          } else {
+            Write-Host "PowerShell 7 not found, using current version"
+            $PSVersionTable.PSVersion
+          }
+        displayName: Test winget command
