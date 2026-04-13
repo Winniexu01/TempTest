@@ -21,7 +21,7 @@ stages:
           where.exe winget
           winget --version
           winget source update --name winget --disable-interactivity
-          winget list --id Microsoft.PowerShell --source winget --accept-source-agreements --disable-interactivity
+          winget list --id Microsoft.PowerShell --source winget --disable-interactivity
     - task: PowerShell@2
       displayName: Check PowerShell Version (Before Installing PowerShell 7)
       inputs:
@@ -40,7 +40,7 @@ stages:
           try {
             Write-Host "Installing PowerShell 7.5.5.0 via winget (pipeline output suppressed)..."
             winget source update --name winget --disable-interactivity
-            & winget install --id Microsoft.PowerShell --version 7.5.5.0 --source winget --silent --disable-interactivity --accept-package-agreements --accept-source-agreements *> $null
+            & winget install --id Microsoft.PowerShell --version 7.5.5.0 --source winget --silent --disable-interactivity *> $null
           }
           catch {
             Write-Warning "winget command failed: $_"
