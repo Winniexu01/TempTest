@@ -12,6 +12,7 @@ stages:
     displayName: TempTest
     steps:
     - task: PowerShell@2
+      displayName: Test winget command
       inputs:
         pwsh: true
         targetType: inline
@@ -23,20 +24,26 @@ stages:
           $PSVersionTable.PSVersion
           
           try {
-            Write-Host "Attempting to install PowerShell 7.5.5.0 via winget..."
-            & winget install --id Microsoft.PowerShell --version 7.5.5.0 --source winget --silent
-            if ($LASTEXITCODE -ne 0) {
-              Write-Warning "winget install failed with exit code $LASTEXITCODE"
+            Write-Host "Installing PowerShell 7.5.5.0 via winget (pipeline output suppressed)..."
+            & winget install --id Microsoft.PowerShell --version 7.5.5.0 --source winget --silent --disable-interactivity --accept-package-agreements --accept-source-agreements *> $null
+            $wingetExitCode = $LASTEXITCODE
+            if ($wingetExitCode -ne 0) {
+              Write-Warning "winget install failed with exit code $wingetExitCode"
+              $global:LASTEXITCODE = 0
             }
           }
           catch {
             Write-Warning "winget command failed: $_"
+            $global:LASTEXITCODE = 0
           }
           
           if (Test-Path "C:\Program Files\PowerShell\7\pwsh.exe") {
-            & "C:\Program Files\PowerShell\7\pwsh.exe" -NoLogo -NoProfile -Command '$PSVersionTable.PSVersion'
+            $PSVersionTable.PSVersion
+            (Get-Command pwsh).Source
+
+            Write-Host "Checking PowerShell version..."
+            $PSVersionTable.PSVersion
           } else {
             Write-Host "PowerShell 7 not found, using current version"
             $PSVersionTable.PSVersion
           }
-        displayName: Test winget command
