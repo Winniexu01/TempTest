@@ -38,7 +38,16 @@ stages:
         script: |
           try {
             Write-Host "Installing PowerShell 7.5.5.0 via winget (pipeline output suppressed)..."
-            & winget install --id Microsoft.PowerShell --version 7.5.5.0 --source winget --silent --disable-interactivity *> $null
+            $ver = "7.5.5"
+            $msi = "PowerShell-$ver-win-x64.msi"
+            $url = "https://github.com/PowerShell/PowerShell/releases/download/v$ver/$msi"
+            $dst = Join-Path $env:AGENT_TEMPDIRECTORY $msi
+
+            Write-Host "Downloading $url"
+            Invoke-WebRequest -Uri $url -OutFile $dst
+
+            Write-Host "Installing $msi"
+            Start-Process msiexec.exe -Wait -ArgumentList @("/i", "`"$dst`"", "/qn", "/norestart")
           }
           catch {
             Write-Warning "winget command failed: $_"
