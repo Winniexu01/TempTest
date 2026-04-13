@@ -1,5 +1,7 @@
 parameters:
-  PowerShellVersion: '7.5.5'
+- name: PowerShellVersion
+  type: string
+  default: '7.5.5'
 
 name: $(date:yyyyMMdd)$(rev:.r)
 
