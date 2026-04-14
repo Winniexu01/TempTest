@@ -29,7 +29,7 @@ stages:
     steps:
     - template: /src/azure-pipelines/template/build-solution.yml@self
       parameters:
-        SDKVersion: '6.0'
+        SDKVersion: '6.0.x'
     - template: /src/azure-pipelines/template/upgrade-powershell.yml@self
       parameters:
         PowerShellVersion: ${{ parameters.PowerShellVersion }}
