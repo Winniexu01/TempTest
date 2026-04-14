@@ -7,9 +7,9 @@ steps:
   inputs:
     checkLatest: true
 
-- ${{ if eq(variables['SolutionName'], 'PackageLoader') }}:
-  - pwsh: |
-      Write-Host "Setting up environment variables for PackageLoader solution"
-      Write-Host "OutputFolder: $(OutputFolder)"
-      Write-Host "##vso[task.setvariable variable=AssemblyPath]$(OutputFolder)"
-    displayName: 'Set Assembly Path Variable'
+- pwsh: |
+    Write-Host "Setting up environment variables for PackageLoader solution"
+    Write-Host "OutputFolder: $(OutputFolder)"
+    Write-Host "##vso[task.setvariable variable=AssemblyPath]$(OutputFolder)"
+  displayName: 'Set Assembly Path Variable'
+  condition: and(succeeded(), eq(variables['SolutionName'], 'PackageLoader'))
