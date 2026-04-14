@@ -37,5 +37,13 @@ stages:
         pwsh: true
         targetType: inline
         script: |
+          Write-Host "Environment Variables:"
+          Get-ChildItem Env:
+          Write-Host "Source Folder: $(SourceFolder)"
+          Write-Host "Output Folder: $(OutputFolder)"
+          Write-Host "Assembly Path: $(AssemblyPath)"
+          Write-Host "VSEngMailerPath: $($env:VSEngMailerPath)"
           import-module $(SourceFolder)\Test.psm1
           Test-Function
+        env:
+          VSEngMailerPath: $(AssemblyPath)
