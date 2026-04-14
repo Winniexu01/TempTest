@@ -1,67 +1,81 @@
 parameters:
-  PowerShellVersion: '7.5.5'
+  PowerShellVersion: ' '
 
 steps:
-- ${{ if ne(parameters.PowerShellVersion, ' ') }}:
-  - task: PowerShell@2
-    displayName: Check PowerShell Version (Before Installation)
-    continueOnError: false
-    inputs:
-      pwsh: true
-      targetType: inline
-      script: |
-        $PSVersionTable.PSVersion
-        (Get-Command pwsh).Source
+- task: PowerShell@2
+  displayName: Check PowerShell Version (Before Installation)
+  continueOnError: false
+  inputs:
+    pwsh: true
+    targetType: inline
+    script: |
+      $PSVersionTable.PSVersion
+      (Get-Command pwsh).Source
 
-  - task: PowerShell@2
-    displayName: Install PowerShell - ${{ parameters.PowerShellVersion }}
-    continueOnError: false
-    inputs:
-      pwsh: false
-      targetType: inline
-      script: |
-        try {
-          $ver = "${{ parameters.PowerShellVersion }}"
-          $msi = "PowerShell-$ver-win-x64.msi"
-          $url = "https://github.com/PowerShell/PowerShell/releases/download/v$ver/$msi"
-          $dst = Join-Path $env:AGENT_TEMPDIRECTORY $msi
+- task: PowerShell@2
+  displayName: Install PowerShell (MSI)
+  continueOnError: false
+  inputs:
+    pwsh: false
+    targetType: inline
+    script: |
+      try {
+        $requestedVersion = "${{ parameters.PowerShellVersion }}".Trim()
 
-          Write-Host "Downloading $url"
-          Invoke-WebRequest -Uri $url -OutFile $dst
-
-          Write-Host "Installing $msi"
-          Start-Process msiexec.exe -Wait -ArgumentList @("/i", "`"$dst`"", "/qn", "/norestart")
-        }
-        catch {
-          Write-Warning "winget command failed: $_"
-          $global:LASTEXITCODE = 0
+        if ([string]::IsNullOrWhiteSpace($requestedVersion)) {
+          Write-Host "No version provided. Resolving latest PowerShell version from GitHub releases..."
+          $latestRelease = Invoke-RestMethod -Uri "https://api.github.com/repos/PowerShell/PowerShell/releases/latest" -Headers @{ "User-Agent" = "AzurePipelines" }
+          $requestedVersion = $latestRelease.tag_name.TrimStart('v')
         }
 
-  - task: PowerShell@2
-    displayName: Check PowerShell Version (After Installation)
-    continueOnError: false
-    inputs:
-      pwsh: true
-      targetType: inline
-      script: |
-        Write-Host "Checking PowerShell Version after installation"
-        (Get-Command pwsh).Source
-        $requiredVersionText = "${{ parameters.PowerShellVersion }}"
-        $requiredVersion = [System.Management.Automation.SemanticVersion]$requiredVersionText
-        $currentVersion = $PSVersionTable.PSVersion
+        Write-Host "Installing PowerShell version: $requestedVersion"
 
-        Write-Host "Required PowerShell version: $requiredVersion"
-        Write-Host "Current PowerShell version:  $currentVersion"
+        $msi = "PowerShell-$requestedVersion-win-x64.msi"
+        $url = "https://github.com/PowerShell/PowerShell/releases/download/v$requestedVersion/$msi"
+        $dst = Join-Path $env:AGENT_TEMPDIRECTORY $msi
 
-        # Compare Major.Minor.Patch to avoid Revision mismatches from platform differences.
-        $isMatch = (
-          $currentVersion.Major -eq $requiredVersion.Major -and
-          $currentVersion.Minor -eq $requiredVersion.Minor -and
-          $currentVersion.Patch -eq $requiredVersion.Patch
-        )
+        Write-Host "Downloading $url"
+        Invoke-WebRequest -Uri $url -OutFile $dst
 
-        if (-not $isMatch) {
-          throw "PowerShell version mismatch. Required: $requiredVersion, Current: $currentVersion"
+        Write-Host "Installing $msi"
+        $p = Start-Process msiexec.exe -Wait -PassThru -ArgumentList @("/i", "`"$dst`"", "/qn", "/norestart")
+        if ($p.ExitCode -ne 0) {
+          throw "msiexec failed with exit code $($p.ExitCode)"
         }
 
-        Write-Host "PowerShell version check passed."
+        Write-Host "##vso[task.setvariable variable=ResolvedPowerShellVersion]$requestedVersion"
+      }
+      catch {
+        Write-Error "PowerShell MSI installation failed: $_"
+        throw
+      }
+
+- task: PowerShell@2
+  displayName: Check PowerShell Version (After Installation)
+  continueOnError: false
+  inputs:
+    pwsh: true
+    targetType: inline
+    script: |
+      Write-Host "Checking PowerShell Version after installation"
+      (Get-Command pwsh).Source
+
+      $requiredVersionText = "$(ResolvedPowerShellVersion)"
+      $requiredVersion = [System.Management.Automation.SemanticVersion]$requiredVersionText
+      $currentVersion = $PSVersionTable.PSVersion
+
+      Write-Host "Required PowerShell version: $requiredVersion"
+      Write-Host "Current PowerShell version:  $currentVersion"
+
+      # Compare Major.Minor.Patch to avoid Revision mismatches from platform differences.
+      $isMatch = (
+        $currentVersion.Major -eq $requiredVersion.Major -and
+        $currentVersion.Minor -eq $requiredVersion.Minor -and
+        $currentVersion.Patch -eq $requiredVersion.Patch
+      )
+
+      if (-not $isMatch) {
+        throw "PowerShell version mismatch. Required: $requiredVersion, Current: $currentVersion"
+      }
+
+      Write-Host "PowerShell version check passed."
