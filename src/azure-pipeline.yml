@@ -39,7 +39,7 @@ stages:
         script: |
           Write-Host "Package Path: $(PackagePath)"
           if (Test-Path "$(PackagePath)") {
-            Get-ChildItem -Path "$(PackagePath)" -Recurse -File | ForEach-Object { Write-Host $_.FullName }
+            Get-ChildItem -Path "$(PackagePath)" -Recurse -File | Where-Object { $_.Name -ilike "*\vseng.pi\*" } | ForEach-Object { Write-Host $_.FullName }
           }
           else {
             Write-Warning "PackagePath does not exist: $(PackagePath)"

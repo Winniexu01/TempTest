@@ -1,18 +1,17 @@
 function Test-Function() {
     $piPackageRoot = Join-Path $env:AssemblyPath 'VSEng.PI'
-    $piPackage = $piPackageRoot
 
     if (Test-Path $piPackageRoot -PathType Container) {
-        $versionDirectories = Get-ChildItem -Path $piPackageRoot -Directory -ErrorAction Stop |
+        $piPackage = Get-ChildItem -Path $piPackageRoot -Directory -ErrorAction Stop |
             Where-Object { $_.Name -as [version] } |
-            Sort-Object { [version]$_.Name } -Descending
-
-        if ($versionDirectories.Count -gt 0) {
-            $piPackage = $versionDirectories[0].FullName
-        }
+            Sort-Object { [version]$_.Name } -Descending |
+            Select-Object -First 1
     }
 
     $binDir = Join-Path $piPackage 'bin'
 
-    Write-Host "Looking for VSEng.Mailer.dll in: $binDir"
+    if (-not (Test-Path $binDir -PathType Container)) {
+        Write-LogMessage -Message "Bin directory not found at expected location: $binDir" -LogType 'Error'
+        throw "Bin directory not found at expected location: $binDir"
+    }
 }
