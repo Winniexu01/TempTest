@@ -1,9 +1,7 @@
 function Test-Function() {
-    Write-Host "Running Test-Function in Test.psm1"
-    $piPackageRoot = Join-Path $env:AssemblyPath 'VSEng.PI'
-    Write-Host "Looking for VSEng.PI packages in: $piPackageRoot"
-    if (Test-Path $piPackageRoot -PathType Container) {
-        $piPackage = Get-ChildItem -Path $piPackageRoot -Directory -ErrorAction Stop |
+    Write-Host "Looking for VSEng.PI packages in: $env:VSEngPIPath"
+    if (Test-Path $env:VSEngPIPath -PathType Container) {
+        $piPackage = Get-ChildItem -Path $env:VSEngPIPath -Directory -ErrorAction Stop |
             Where-Object { $_.Name -as [version] } |
             Sort-Object { [version]$_.Name } -Descending |
             Select-Object -First 1

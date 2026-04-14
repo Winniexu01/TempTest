@@ -51,5 +51,6 @@ steps:
 - pwsh: |
     Write-Host "Setting up environment variables"
     Write-Host "##vso[task.setvariable variable=AssemblyPath]$(OutputFolder)"
+    Write-Host "##vso[task.setvariable variable=VSEngPIPath]$(PackagePath)\vseng.pi"
   displayName: 'Set Assembly Path Variable'
   condition: and(succeeded(), eq(variables['SolutionName'], 'PackageLoader'))
