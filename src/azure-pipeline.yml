@@ -28,6 +28,8 @@ stages:
     displayName: TempTest
     steps:
     - template: /src/azure-pipelines/template/build-solution.yml@self
+      parameters:
+        SDKVersion: '6.0'
     - template: /src/azure-pipelines/template/upgrade-powershell.yml@self
       parameters:
         PowerShellVersion: ${{ parameters.PowerShellVersion }}

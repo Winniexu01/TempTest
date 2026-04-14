@@ -45,7 +45,7 @@ steps:
     msbuildArgs: >
       /p:VSEngMailerVersion=$(VSEngMailerVersion)
       /bl:$(Build.ArtifactStagingDirectory)\Logs\$(SolutionName).binlog;ProjectImports=None
-      /p:OutputPath=$(OutputFolder)
+      /p:BaseOutputPath=$(OutputFolder)
   continueOnError: false
 
 - pwsh: |
