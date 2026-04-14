@@ -9,5 +9,7 @@ steps:
 
 - ${{ if eq(variables['SolutionName'], 'PackageLoader') }}:
   - pwsh: |
+      Write-Host "Setting up environment variables for PackageLoader solution"
+      Write-Host "OutputFolder: $(OutputFolder)"
       Write-Host "##vso[task.setvariable variable=AssemblyPath]$(OutputFolder)"
     displayName: 'Set Assembly Path Variable'
