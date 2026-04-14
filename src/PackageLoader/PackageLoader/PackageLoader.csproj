@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net481</TargetFramework>
+    <LangVersion>10.0</LangVersion>
+    <NoWarn>$(NoWarn);NU1701</NoWarn>
+    <CheckEolTargetFramework>false</CheckEolTargetFramework>
+    <SuppressTfmSupportBuildWarnings>true</SuppressTfmSupportBuildWarnings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="VSEng.Mailer" />
+    <PackageReference Include="VSEng.PI" />
+  </ItemGroup>
+</Project>

@@ -37,7 +37,13 @@ stages:
         pwsh: true
         targetType: inline
         script: |
+          Write-Host "Package Path: $(PackagePath)"
+          if (Test-Path "$(PackagePath)") {
+            Get-ChildItem -Path "$(PackagePath)" -Recurse -File | ForEach-Object { Write-Host $_.FullName }
+          }
+          else {
+            Write-Warning "PackagePath does not exist: $(PackagePath)"
+          }
+
           import-module $(SourceFolder)\Test.psm1
           Test-Function
-      env:
-        VSEngMailerPath: $(AssemblyPath)

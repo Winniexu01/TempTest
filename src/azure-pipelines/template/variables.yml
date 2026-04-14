@@ -51,6 +51,8 @@ variables:
   value: VSEng.Mailer
 - name: VSEngMailerVersion
   value: ${{ parameters.VSEngMailerVersion }}
+- name: PackagePath
+  value: $(SourceFolder)\$(SolutionName)\packages
 
 # Abandon Expired PR Settings
 - name: VSBaseUrl

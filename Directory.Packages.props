@@ -1,0 +1,15 @@
+<Project>
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+    <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
+    <CentralPackageFloatingVersionsEnabled>true</CentralPackageFloatingVersionsEnabled>
+
+    <!-- Default version; used when pipeline does not provide one -->
+    <VSEngMailerVersion Condition="'$(VSEngMailerVersion)' == ''">*</VSEngMailerVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageVersion Include="VSEng.Mailer" Version="$(VSEngMailerVersion)" />
+    <PackageVersion Include="VSEng.PI" Version="*" />
+  </ItemGroup>
+</Project>
