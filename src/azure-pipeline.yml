@@ -1,0 +1,41 @@
+parameters:
+- name: VSEngMailerVersion
+  type: string
+  displayName: 'Version of VSEngMailer (e.g., 1.0.*; default - latest).'
+  default: '*'
+- name: PowerShellVersion
+  type: string
+  displayName: 'Version of PowerShell (e.g., 7.5.5; default - latest).'
+  default: ' '
+
+variables:
+- template: /src/azure-pipelines/template/variables.yml@self
+  parameters:
+    SolutionName: 'PackageLoader'
+    VSEngMailerVersion: ${{ parameters.VSEngMailerVersion }}
+
+name: $(date:yyyyMMdd)$(rev:.r)
+
+trigger: none
+pr: none
+pool:
+  vmImage: 'windows-latest'
+stages:
+- stage: stage
+  displayName: 'Console App 1'
+  jobs:
+  - job: Phase_1
+    displayName: TempTest
+    steps:
+    - template: /src/azure-pipelines/template/build-solution.yml@self
+    - template: /src/azure-pipelines/template/upgrade-powershell.yml@self
+      parameters:
+        PowerShellVersion: ${{ parameters.PowerShellVersion }}
+    - task: PowerShell@2
+      displayName: Test Env
+      inputs:
+        pwsh: true
+        targetType: inline
+        script: |
+          import-module $(SourceFolder)\Test.psm1
+          Test-Function

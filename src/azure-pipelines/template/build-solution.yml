@@ -1,0 +1,13 @@
+parameters:
+  SDKVersion: ''
+
+steps:
+- task: NuGetToolInstaller@1
+  displayName: Use NuGet
+  inputs:
+    checkLatest: true
+
+- ${{ if eq(variables['SolutionName'], 'PackageLoader') }}:
+  - pwsh: |
+      Write-Host "##vso[task.setvariable variable=AssemblyPath]$(OutputFolder)"
+    displayName: 'Set Assembly Path Variable'
