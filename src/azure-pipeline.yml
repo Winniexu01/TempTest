@@ -45,5 +45,5 @@ stages:
           Write-Host "VSEngMailerPath: $($env:VSEngMailerPath)"
           import-module $(SourceFolder)\Test.psm1
           Test-Function
-        env:
-          VSEngMailerPath: $(AssemblyPath)
+      env:
+        VSEngMailerPath: $(AssemblyPath)
