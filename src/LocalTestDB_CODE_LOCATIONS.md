@@ -98,6 +98,87 @@ Generated:
 | LaunchPad | build/request enrichment flow -> `Build.cs` request-loading helpers -> `BuildStatusDB.GetRequestDataforBuilds()` -> procedure `up_GetLaunchPadRequestsForSessions` |
 | FeedStore | issue save/update flow -> `Issue.cs` validates cost center -> `BuildStatusDB.CostCenterExists()` / `AddNewCostCenter()` -> procedures `sp_GetCostCenter` / `sp_AddNewCostCenter` -> cross-db read/write to `FeedStore..tbl_CostCenter` |
 
+## LaunchPad / LaunchPad Detailed Inventory
+
+### LaunchPad connection string evidence
+
+| Type | File | Evidence | Meaning |
+| --- | --- | --- | --- |
+| Web app connection string | `LaunchPad/src/LaunchPad/Web.config` | connectionStrings entries for production / staging / dev `LaunchPad` database | Main web application runtime connection to the `LaunchPad` database |
+| Service app setting + connection string | `LaunchPad/src/LaunchPad.Service/App.config` | `LaunchPadDBConnString` app setting plus `connectionStrings` entries for `LaunchPad` | Background/service-side runtime connection to the `LaunchPad` database |
+| Test connection string | `LaunchPad/src/LaunchPad.Testing/App.config` | LaunchPad test connection string | Test/runtime validation against `LaunchPad` database |
+| Schema compare connection | `LaunchPad/src/LaunchPad.Database/Schema Comparisons/SchemaCompare.scmp` | schema-comparison connection targeting `LaunchPad` | Database project comparison/deployment metadata |
+
+### Important note on LaunchPad connection strings
+
+- Unlike `DAD`, `LaunchPad` does have direct SQL connection strings in app/service/test config.
+- `LaunchPadDB.cs` is the central C# wrapper that consumes the runtime `LaunchPad` connection.
+- `LaunchPad.Database` is the owned SQL project for this database, so SQL files under that project are first-class `LaunchPad` DB assets rather than external references.
+
+### C# files touching the LaunchPad database
+
+| File | LaunchPad DB usage |
+| --- | --- |
+| `LaunchPad/src/LaunchPad.Components/LaunchPadDB.cs` | Central `LaunchPad` database wrapper; executes LaunchPad stored procedures and queries |
+| `LaunchPad/src/LaunchPad.Components/LaunchInfo.cs` | Instantiates `LaunchPadDB` |
+| `LaunchPad/src/LaunchPad.Components/LabDefinition.cs` | Instantiates `LaunchPadDB` |
+| `LaunchPad/src/LaunchPad.Components/Lab.cs` | Instantiates `LaunchPadDB` |
+| `LaunchPad/src/LaunchPad.Components/HardwareClass.cs` | Instantiates `LaunchPadDB` |
+| `LaunchPad/src/LaunchPad.Components/DropMachine.cs` | Instantiates `LaunchPadDB` |
+| `LaunchPad/src/LaunchPad.Components/Toolset.cs` | Instantiates `LaunchPadDB` |
+| `LaunchPad/src/LaunchPad.Components/Template.cs` | Instantiates `LaunchPadDB` |
+| `LaunchPad/src/LaunchPad.Components/DefinitionStep.cs` | Instantiates `LaunchPadDB` |
+| `LaunchPad/src/LaunchPad.Components/Definition.cs` | Instantiates `LaunchPadDB` |
+| `LaunchPad/src/LaunchPad.Components/San.cs` | Instantiates `LaunchPadDB` |
+| `LaunchPad/src/LaunchPad.Components/ResourceUsage.cs` | Instantiates `LaunchPadDB` |
+| `LaunchPad/src/LaunchPad.Components/ResourceRequirement.cs` | Instantiates `LaunchPadDB` |
+| `LaunchPad/src/LaunchPad.Components/Resource.cs` | Instantiates `LaunchPadDB` |
+| `LaunchPad/src/LaunchPad.Components/BuildNumber.cs` | Instantiates `LaunchPadDB` |
+| `LaunchPad/src/LaunchPad.Components/RequestProperty.cs` | Instantiates `LaunchPadDB` |
+| `LaunchPad/src/LaunchPad.Components/RequestInfoBare.cs` | Instantiates `LaunchPadDB` |
+| `LaunchPad/src/LaunchPad.Components/BuildMachine.cs` | Instantiates `LaunchPadDB` |
+| `LaunchPad/src/LaunchPad.Components/Build.cs` | Instantiates `LaunchPadDB` |
+| `LaunchPad/src/LaunchPad.Components/RequestComment.cs` | Instantiates `LaunchPadDB` |
+| `LaunchPad/src/LaunchPad.Components/RequestBuild.cs` | Instantiates `LaunchPadDB` |
+| `LaunchPad/src/LaunchPad.Components/Request.cs` | Instantiates `LaunchPadDB`; main request lifecycle access path |
+| `LaunchPad/src/LaunchPad.Components/Reporting.cs` | Instantiates `LaunchPadDB` for reporting flows |
+| `LaunchPad/src/LaunchPad.Components/PreLaunchAssembly.cs` | Instantiates `LaunchPadDB` |
+| `LaunchPad/src/LaunchPad.Components/Pool.cs` | Instantiates `LaunchPadDB` |
+| `LaunchPad/src/LaunchPad.Components/Org.cs` | Instantiates `LaunchPadDB` |
+| `LaunchPad/src/LaunchPad.Components/Log.cs` | Instantiates `LaunchPadDB` |
+| `LaunchPad/src/LaunchPad.Definitions/Partner/Definitions/Partner/Properties/WhidbeyBuildNumber.cs` | Instantiates `LaunchPadDB` |
+| `LaunchPad/src/LaunchPad.Definitions/Partner/Definitions/Partner/Properties/WhidbeyBranch.cs` | Instantiates `LaunchPadDB` |
+| `LaunchPad/src/LaunchPad.Components.Test/LaunchPadDBTest.cs` | Test coverage for `LaunchPadDB` |
+| `LaunchPad/src/LaunchPad.Components.Test/PoolTest.cs` | Test usage around `LaunchPadDB` / pool database behavior |
+
+### SQL files for the LaunchPad database
+
+- Full ownership boundary: `LaunchPad/src/LaunchPad.Database/Schema Objects/**` is the authoritative SQL asset tree for the `LaunchPad` database.
+- Current workspace count: `LaunchPad/src/LaunchPad.Database/Schema Objects/**` contains 452 `.sql` files.
+- The table below lists the key entry files and representative core objects; if you need a literal full path inventory, it can be exported separately from this folder.
+
+| Area | File | LaunchPad DB relevance |
+| --- | --- | --- |
+| Database project | `LaunchPad/src/LaunchPad.Database/LaunchPad.Database.dbproj` | Owned database project for `LaunchPad` |
+| Database project | `LaunchPad/src/LaunchPad.Database/LaunchPad.Database.sqlproj` | Owned SQL project for `LaunchPad` |
+| Schema compare | `LaunchPad/src/LaunchPad.Database/Schema Comparisons/SchemaCompare.scmp` | Compares/deploys schema against `LaunchPad` database |
+| Core schema object | `LaunchPad/src/LaunchPad.Database/Schema Objects/Schemas/dbo/Tables/tbl_Request.table.sql` | Core `LaunchPad` table |
+| Core schema object | `LaunchPad/src/LaunchPad.Database/Schema Objects/Schemas/dbo/Tables/tbl_RequestBuild.table.sql` | Core `LaunchPad` request-build table |
+| Core schema object | `LaunchPad/src/LaunchPad.Database/Schema Objects/Schemas/dbo/Views/vw_Request.view.sql` | Core request view |
+| Core schema object | `LaunchPad/src/LaunchPad.Database/Schema Objects/Schemas/dbo/Views/vw_Definition.view.sql` | Core definition view |
+| Core schema object | `LaunchPad/src/LaunchPad.Database/Schema Objects/Schemas/dbo/Views/vw_LopezRequestSessions.view.sql` | Core LaunchPad reporting/integration view |
+| Stored procedure | `LaunchPad/src/LaunchPad.Database/Schema Objects/Schemas/dbo/Programmability/Stored Procedures/up_DefinitionCloneFromDDSQL3.proc.sql` | References `LaunchPad.dbo` objects during definition cloning |
+| Stored procedure | `LaunchPad/src/LaunchPad.Database/Schema Objects/Schemas/dbo/Programmability/Stored Procedures/up_ReportUniqueUsers.proc.sql` | Reads LaunchPad request / definition data |
+| Stored procedure | `LaunchPad/src/LaunchPad.Database/Schema Objects/Schemas/dbo/Programmability/Stored Procedures/up_ReportingQueueBaseData.proc.sql` | Reads LaunchPad queue/reporting tables |
+| Stored procedure | `LaunchPad/src/LaunchPad.Database/Schema Objects/Schemas/dbo/Programmability/Stored Procedures/up_ReportDuplicateRequests.proc.sql` | Reads LaunchPad request data |
+| Deploy SQL | `LaunchPad/src/deploy/sql/000009/up_UpdateDropMachineState.sql` | Cross-database SQL referencing `LaunchPad..tbl_RequestBuild`, `LaunchPad..tbl_ResourceUsage`, `LaunchPad..vw_ResourceDADServers` |
+
+### LaunchPad summary for LaunchPad
+
+- `LaunchPad` is the primary owned runtime database in this repo.
+- The runtime C# access surface is centered on `LaunchPadDB.cs`, and the surrounding component classes instantiate that wrapper.
+- The authoritative SQL asset set lives under `LaunchPad/src/LaunchPad.Database`, while deploy scripts also contain explicit cross-database references back into `LaunchPad..*` objects.
+
 ## LaunchPad / DAD Detailed Inventory
 
 ### DAD connection string / endpoint evidence
