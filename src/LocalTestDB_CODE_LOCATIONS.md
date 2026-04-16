@@ -16,6 +16,7 @@ Generated:
 | SanMan | Deploy SQL, external dependency schema/project | External dependency |
 | DropManagement | Deploy SQL and external dependency schema/project | External dependency |
 | Techease | Deploy SQL cross-db reads | External dependency |
+| FeedStore | `ExternalDependencies/LabStatus.dbschema` contains `FeedStore..tbl_CostCenter` references | External dependency schema artifact |
 | Utils | `LaunchPad.Database.sqlproj` SQLCMD variable | Database-project dependency |
 | LabSchedule | `LabSchedule.Database` project target DB | Database-project dependency |
 
@@ -29,6 +30,7 @@ Generated:
 | devdiv_General | `FlashNewsDBconnectionString`, `FlashNewsControl2` | Configured external integration |
 | Addax_whby | `DDRelQA.DataLayer` config and data layer | Separate runtime data layer |
 | LaunchPad | `up_GetLaunchPadRequestsForSessions` result path in `BuildStatusDB.cs` | Cross-database dependency via LabStatus procedures |
+| FeedStore | LabStatus stored procedures `sp_GetCostCenter`, `sp_AddNewCostCenter`, `sp_GetCostCentersWithIssues`, `sp_RptNumberOfIssuesPerTeamRolledUpByDate2`, `up_GetStatsData*` | Cross-database dependency via LabStatus procedures |
 
 ## Read / Call Chains
 
@@ -46,6 +48,7 @@ Generated:
 | SanMan | Deploy procedure `up_GetDropMachineSelection` reads `SanMan..tbl_VDisk`, `SanMan..vw_CreatedVDisk`, `SanMan..tbl_San` | SQL procedures invoked through `LaunchPadDB` SAN/drop selection methods | Drop machine and SAN workflows |
 | DropManagement | Deploy procedure `up_GetDropMachineSelection` joins `DropManagement..tbl_Drop` | SQL procedures invoked through `LaunchPadDB` drop selection methods | Drop-management related request/resource flows |
 | Techease | Deploy procedure `up_UpdateDropMachineState` reads `Techease..vw_Ticket`, `Techease..tbl_TicketMachine` | SQL procedure executed through LaunchPad state-update path | Drop/build machine state update workflows |
+| FeedStore | `LaunchPad/src/ExternalDependencies/LabStatus.dbschema` contains `FeedStore..tbl_CostCenter` references inherited from external LabStatus schema metadata | No local `LaunchPadDB` caller found; schema/build-time only in this repo | External dependency visible through imported schema artifacts rather than direct LaunchPad runtime code |
 | Utils | `LaunchPad/src/LaunchPad.Database/LaunchPad.Database.sqlproj` SQLCMD variable `UtilsDB` | DB project build/deployment | Database project only |
 | LabSchedule | `LaunchPad/src/LabSchedule.Database/LabSchedule.Database.sqlproj` / `.dbproj` target DB `LabSchedule` | DB project build/deployment | Database project only |
 
@@ -59,6 +62,7 @@ Generated:
 | devdiv_General | `BuildStatus/src/BuildStatus/Web.Config` defines `FlashNewsDBconnectionString` | `Default.aspx` hosts `FlashNewsControl2`; actual DB consumption appears to occur inside external `FlashNewsControl2.dll` | `Default.aspx` home/status page |
 | Addax_whby | `BuildStatus/src/DDRelQA.DataLayer/app.config` defines `Addax_whbyConnectionString1`; `AddaxManager.cs` and generated `.designer.cs/.dbml` files read it | `DDRelQA.DataLayer` consumers | DDRelQA-related tools/pages/components that consume the separate data layer |
 | LaunchPad | `BuildStatus/src/BuildStatus.Components/BuildStatusDB.cs` method `GetRequestDataforBuilds()` executes `up_GetLaunchPadRequestsForSessions` | `Build.cs` request-loading helpers use this method to enrich builds with LaunchPad request data | Build detail, request display, and related service flows |
+| FeedStore | `BuildStatus/src/LabStatus.Database/Schema Objects/Schemas/dbo/Programmability/Stored Procedures/sp_GetCostCenter.proc.sql`, `sp_AddNewCostCenter.proc.sql`, `sp_GetCostCentersWithIssues.proc.sql`, `sp_RptNumberOfIssuesPerTeamRolledUpByDate2.proc.sql`, `up_GetStatsData.proc.sql`, `up_GetStatsData_OLD.proc.sql` reference `FeedStore..tbl_CostCenter` | `BuildStatusDB.CostCenterExists()` and `AddNewCostCenter()` are called by `Issue.cs`; reporting/stats procedures remain local SQL assets with no confirmed C# wrapper in current scan | Issue create/update cost-center validation flows, plus SQL-side reporting/statistics flows |
 
 ## Recommended Reading Order
 
@@ -92,6 +96,7 @@ Generated:
 | BFD | build detail enrichment flow -> `BuildStatusDB.GetBuildBFD()` -> dedicated `Database(connectionSettings["BFDConnectionString"])` -> procedure `sp_GetBuildBFD` |
 | devdiv_General | `BuildStatus/Default.aspx` hosts `FlashNewsControl2` -> control consumes `FlashNewsDBconnectionString` from `BuildStatus/Web.Config` -> database `devdiv_General` |
 | LaunchPad | build/request enrichment flow -> `Build.cs` request-loading helpers -> `BuildStatusDB.GetRequestDataforBuilds()` -> procedure `up_GetLaunchPadRequestsForSessions` |
+| FeedStore | issue save/update flow -> `Issue.cs` validates cost center -> `BuildStatusDB.CostCenterExists()` / `AddNewCostCenter()` -> procedures `sp_GetCostCenter` / `sp_AddNewCostCenter` -> cross-db read/write to `FeedStore..tbl_CostCenter` |
 
 ## Wrapper Method Mappings
 
@@ -155,6 +160,8 @@ Generated:
 | `SearchIssues(...)` | `up_SearchIssues` | issue search UI/report code | Search issues by many filters |
 | `UpdateIssue(...)` | `up_UpdateIssue` | `BuildStatus/src/BuildStatus.Components/Issue.cs` update flows | Persist issue edits |
 | `UpdateIssueCausedBy(...)` | `up_UpdateIssueCausedBy` | `BuildStatus/src/BuildStatus.Components/Issue.cs` | Save caused-by / cost center |
+| `CostCenterExists(string costCenter)` | `sp_GetCostCenter` | `BuildStatus/src/BuildStatus.Components/Issue.cs` create/update flows | Validate cost center against FeedStore-backed data |
+| `AddNewCostCenter(string costCenter)` | `sp_AddNewCostCenter` | `BuildStatus/src/BuildStatus.Components/Issue.cs` create/update flows | Insert new cost center through FeedStore-linked procedure |
 | `DeleteIssue(int issueId)` | `sp_DeleteIssue` | `BuildStatus/src/BuildStatus.Components/Issue.cs` delete flows | Soft-delete issue |
 | `AssignIssueToSession(...)` | `sp_AddIssueToSession` | `BuildStatus/src/BuildStatus.Components/Issue.cs` | Link issue to build |
 | `DeleteIssueFromSession(...)` | `sp_DeleteIssueFromSession` | `BuildStatus/src/BuildStatus.Components/Issue.cs` | Unlink issue from build |
@@ -189,6 +196,8 @@ Generated:
 | `up_GetSessions` | `BuildStatus/src/LabStatus.Database/Schema Objects/Schemas/dbo/Programmability/Stored Procedures/up_GetSessions.proc.sql` | `BuildStatusDB.GetSession()` / `GetSessions()` | `BuildDetails.aspx.cs` -> `Build.Load(sessionId)` -> `BuildStatusDB.GetSession()` -> `up_GetSessions` |
 | `up_GetIssuesBySessions` | `BuildStatus/src/LabStatus.Database/Schema Objects/Schemas/dbo/Programmability/Stored Procedures/up_GetIssuesBySessions.proc.sql` | `BuildStatusDB.GetIssuesByBuildIDs()` | REST/API issue lookup -> `Issue.GetIssuesByBuildIds()` -> `BuildStatusDB.GetIssuesByBuildIDs()` -> `up_GetIssuesBySessions` |
 | `up_AddIssue` | `BuildStatus/src/LabStatus.Database/Schema Objects/Schemas/dbo/Programmability/Stored Procedures/up_AddIssue.proc.sql` | `BuildStatusDB.AddIssue()` | create-issue flow -> `Issue.Add()` -> `BuildStatusDB.AddIssue()` -> `up_AddIssue` |
+| `sp_GetCostCenter` | `BuildStatus/src/LabStatus.Database/Schema Objects/Schemas/dbo/Programmability/Stored Procedures/sp_GetCostCenter.proc.sql` | `BuildStatusDB.CostCenterExists()` | `Issue.cs` create/update flow -> `BuildStatusDB.CostCenterExists()` -> `sp_GetCostCenter` -> cross-db read from `FeedStore..tbl_CostCenter` |
+| `sp_AddNewCostCenter` | `BuildStatus/src/LabStatus.Database/Schema Objects/Schemas/dbo/Programmability/Stored Procedures/sp_AddNewCostCenter.proc.sql` | `BuildStatusDB.AddNewCostCenter()` | `Issue.cs` create/update flow -> `BuildStatusDB.AddNewCostCenter()` -> `sp_AddNewCostCenter` -> cross-db write to `FeedStore..tbl_CostCenter` |
 | `up_UpdateSessionStatus` | `BuildStatus/src/LabStatus.Database/Schema Objects/Schemas/dbo/Programmability/Stored Procedures/up_UpdateSessionStatus.proc.sql` | `BuildStatusDB.UpdateSessionsStatus()` | `AjaxService.cs` update/abandon flow -> `Build.UpdateStatus()` -> `BuildStatusDB.UpdateSessionsStatus()` -> `up_UpdateSessionStatus` |
 | `sp_GetLabsAndMilestonesForStatusPageByOrg` | `BuildStatus/src/LabStatus.Database/Schema Objects/Schemas/dbo/Programmability/Stored Procedures/sp_GetLabsAndMilestonesForStatusPageByOrg.proc.sql` | `BuildStatusDB.GetLabsAndMilestonesForStatusPage()` | dashboard/status page flow -> `BuildService.cs` -> `BuildStatusDB.GetLabsAndMilestonesForStatusPage()` -> `sp_GetLabsAndMilestonesForStatusPageByOrg` |
 | `sp_GetBuildBFD` | not found locally | `BuildStatusDB.GetBuildBFD()` via `BFDConnectionString` | build detail enrichment -> `BuildStatusDB.GetBuildBFD()` -> external `BFD` database -> `sp_GetBuildBFD` |
@@ -221,6 +230,7 @@ Generated:
 | Build details page | `BuildStatus/src/BuildStatus/BuildDetails.aspx.cs` | `BuildStatus/src/BuildStatus.Components/Build.cs` `Build.Load()` | `BuildStatusDB.GetSession()` | `up_GetSessions` | `BuildStatus/src/LabStatus.Database/Schema Objects/Schemas/dbo/Programmability/Stored Procedures/up_GetSessions.proc.sql` |
 | REST issue lookup | `BuildStatus/src/BuildStatusRestAPI/Controllers/BuildStatusController.cs` | `BuildStatus/src/BuildStatus.Components/Issue.cs` `GetIssuesByBuildIDs()` | `BuildStatusDB.GetIssuesByBuildIDs()` | `up_GetIssuesBySessions` | `BuildStatus/src/LabStatus.Database/Schema Objects/Schemas/dbo/Programmability/Stored Procedures/up_GetIssuesBySessions.proc.sql` |
 | Create issue | issue creation UI / REST / service flow | `BuildStatus/src/BuildStatus.Components/Issue.cs` `Add()` | `BuildStatusDB.AddIssue()` | `up_AddIssue` | `BuildStatus/src/LabStatus.Database/Schema Objects/Schemas/dbo/Programmability/Stored Procedures/up_AddIssue.proc.sql` |
+| Cost center validation / insert | issue create/update flow in `BuildStatus/src/BuildStatus.Components/Issue.cs` | issue validation helpers | `BuildStatusDB.CostCenterExists()` / `AddNewCostCenter()` | `sp_GetCostCenter` / `sp_AddNewCostCenter` | `BuildStatus/src/LabStatus.Database/Schema Objects/Schemas/dbo/Programmability/Stored Procedures/sp_GetCostCenter.proc.sql`, `BuildStatus/src/LabStatus.Database/Schema Objects/Schemas/dbo/Programmability/Stored Procedures/sp_AddNewCostCenter.proc.sql` |
 | Update/abandon session | `BuildStatus/src/BuildStatus/Services/AjaxService.cs` | `BuildStatus/src/BuildStatus.Components/Build.cs` `UpdateStatus()` | `BuildStatusDB.UpdateSessionsStatus()` | `up_UpdateSessionStatus` | `BuildStatus/src/LabStatus.Database/Schema Objects/Schemas/dbo/Programmability/Stored Procedures/up_UpdateSessionStatus.proc.sql` |
 | Status page lab/milestone summary | `BuildStatus/src/BuildStatus/Services/BuildService.cs` | service/dashboard query flow | `BuildStatusDB.GetLabsAndMilestonesForStatusPage()` | `sp_GetLabsAndMilestonesForStatusPageByOrg` | `BuildStatus/src/LabStatus.Database/Schema Objects/Schemas/dbo/Programmability/Stored Procedures/sp_GetLabsAndMilestonesForStatusPageByOrg.proc.sql` |
 | BFD enrichment | build detail enrichment flow | build/session detail helper code | `BuildStatusDB.GetBuildBFD()` via `BFDConnectionString` | `sp_GetBuildBFD` | not found locally |
