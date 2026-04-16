@@ -27,6 +27,9 @@ stages:
   - job: Phase_1
     displayName: TempTest
     steps:
+    - template: /src/azure-pipelines/template/upgrade-powershell.yml@self
+      parameters:
+        PowerShellVersion: ${{ parameters.PowerShellVersion }}
     - task: PowerShell@2
       displayName: Test Env
       inputs:
