@@ -27,15 +27,16 @@ stages:
   - job: Phase_1
     displayName: TempTest
     steps:
-    - template: /src/azure-pipelines/template/upgrade-powershell.yml@self
-      parameters:
-        PowerShellVersion: ${{ parameters.PowerShellVersion }}
+    # - template: /src/azure-pipelines/template/upgrade-powershell.yml@self
+    #   parameters:
+    #     PowerShellVersion: ${{ parameters.PowerShellVersion }}
     - task: PowerShell@2
-      displayName: Test Env
+      displayName: Test sending email
       inputs:
         pwsh: true
         targetType: inline
         script: |
           $body = @("v-wexu@microsoft.com", "Sending test email via Testing.dll", "This is a test email to verify that the email sending function works correctly.")
-          [System.Reflection.Assembly]::LoadFrom('$(SourceFolder)\SendEmail\Testing.dll')
-          [Testing.Program]::Main($body)
+          # [System.Reflection.Assembly]::LoadFrom('$(SourceFolder)\SendEmailDll\Testing.dll')
+          # [Testing.Program]::Main($body)
+          & "$(SourceFolder)\SendEmailExe\Testing.exe" $body
