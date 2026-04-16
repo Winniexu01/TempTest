@@ -98,6 +98,58 @@ Generated:
 | LaunchPad | build/request enrichment flow -> `Build.cs` request-loading helpers -> `BuildStatusDB.GetRequestDataforBuilds()` -> procedure `up_GetLaunchPadRequestsForSessions` |
 | FeedStore | issue save/update flow -> `Issue.cs` validates cost center -> `BuildStatusDB.CostCenterExists()` / `AddNewCostCenter()` -> procedures `sp_GetCostCenter` / `sp_AddNewCostCenter` -> cross-db read/write to `FeedStore..tbl_CostCenter` |
 
+## LaunchPad / DAD Detailed Inventory
+
+### DAD connection string / endpoint evidence
+
+- No direct SQL Server connection string for database `DAD` was found in LaunchPad config.
+- LaunchPad uses a DAD web-service endpoint setting instead of a DB connection string for the admin/service path:
+	- `LaunchPad/src/LaunchPad.Components/app.config`
+		- setting `LaunchPad_Components_ddweb_DADService`
+		- value `https://ddweb.corp.microsoft.com/dad/Services/DADService.asmx`
+	- `LaunchPad/src/LaunchPad.Components/Properties/Settings.settings`
+	- `LaunchPad/src/LaunchPad.Components/Properties/Settings.Designer.cs`
+	- `LaunchPad/src/LaunchPad.Components/LaunchPad.Components.csproj`
+		- web reference `https://ddweb.corp.microsoft.com/dad/Services/DADService.asmx?WSDL`
+	- `LaunchPad/src/LaunchPad.Components/Web References/ddweb/DADService.wsdl`
+	- `LaunchPad/src/LaunchPad.Components/Web References/ddweb/Reference.map`
+
+### DAD-related SQL files in LaunchPad
+
+| File | DAD usage |
+| --- | --- |
+| `LaunchPad/src/LaunchPad.Database/Schema Objects/Schemas/dbo/Programmability/Stored Procedures/up_GetDropMachineSelection.proc.sql` | Reads `DAD..tbl_Server` and `DAD..tbl_ServerHardware` |
+| `LaunchPad/src/LaunchPad.Database/Schema Objects/Schemas/dbo/Programmability/Stored Procedures/up_GetBuildMachineSelectionForLopez.proc.sql` | Reads `DAD..tbl_HardwareClass`; joins `DAD..tbl_HardwareClass` for machine ranking |
+| `LaunchPad/src/LaunchPad.Database/Schema Objects/Schemas/dbo/Programmability/Stored Procedures/up_UpdateDropMachineState.proc.sql` | Joins `DAD..tbl_Server` during drop-machine state sync |
+| `LaunchPad/src/LaunchPad.Database/Schema Objects/Schemas/dbo/Views/vw_DADServerPoolInfo.view.sql` | Contains commented DAD join reference to `DAD..tbl_Server` |
+| `LaunchPad/src/deploy/sql/000006/up_GetDropMachineSelection.proc.sql` | Older deploy copy of DAD server / hardware joins |
+| `LaunchPad/src/deploy/sql/000007/up_GetDropMachineSelection.proc.sql` | Older deploy copy; reads `DAD..tbl_ServerHardware`, `DAD..tbl_Server`, `DAD..tlkp_ServerType` |
+| `LaunchPad/src/deploy/sql/000008/up_GetDropMachineSelection.proc.sql` | Deploy copy reading `DAD..tbl_Server` and `DAD..tbl_ServerHardware` |
+| `LaunchPad/src/deploy/sql/000009/up_UpdateDropMachineState.sql` | Deploy copy joining `DAD..tbl_Server` |
+| `LaunchPad/src/LaunchPad.Database/LaunchPad.Database.dbproj` | Artifact reference to `ExternalDependencies/DAD.dbschema` |
+| `LaunchPad/src/LabSchedule.Database/LabSchedule.Database.dbproj` | Artifact reference to `ExternalDependencies/DAD.dbschema` |
+| `LaunchPad/src/LabSchedule.Database/LabSchedule.Database.sqlproj` | Artifact reference to `ExternalDependencies/DAD.dacpac` |
+| `LaunchPad/src/LaunchPad.sln` | Solution-level inclusion of `ExternalDependencies/DAD.dbschema` |
+
+### DAD-related C# files in LaunchPad
+
+| File | DAD usage |
+| --- | --- |
+| `LaunchPad/src/LaunchPad.Components/LaunchPadDB.cs` | Direct DB call `ExecuteDataSet("DAD..up_ServerGet", ...)` via `GetServer(...)` |
+| `LaunchPad/src/LaunchPad/Admin/DAD/DAD.cs` | Factory entry point returning `DADCommunicator` |
+| `LaunchPad/src/LaunchPad/Admin/DAD/DADCommunicator.cs` | Wraps DAD web-service calls: `GetServer`, `GetServerById`, `BulkAddServers`, `BulkUpdateServer`, `RenameServer`, `BulkRemoveServers`, `GetServerCategories`, `GetServerTypes` |
+| `LaunchPad/src/LaunchPad/Admin/ServerProperties.ascx.cs` | Calls `DADCommunicator.LoadServerCategories`, `LoadServerTypes`, `BulkUpdateServer`, `BulkAddServers` |
+| `LaunchPad/src/LaunchPad/Admin/RenameServer.aspx.cs` | Calls `DADCommunicator.RenameServer(...)` |
+| `LaunchPad/src/LaunchPad/Admin/RemoveServer.aspx.cs` | Calls `DAD.DAD.GetDADCommunicator().RemoveServer(...)` |
+| `LaunchPad/src/LaunchPad.Components/Web References/ddweb/Reference.cs` | Generated DAD SOAP client `DADService` bound to `LaunchPad_Components_ddweb_DADService` |
+
+### DAD summary for LaunchPad
+
+- LaunchPad touches DAD in two ways:
+	- direct cross-database SQL references such as `DAD..tbl_Server`, `DAD..tbl_ServerHardware`, `DAD..tbl_HardwareClass`, `DAD..tlkp_ServerType`, and `DAD..up_ServerGet`
+	- DAD admin web-service calls through `DADService.asmx`
+- For `connection string`, the accurate statement is: no direct `DAD` database connection string was found; the only runtime endpoint setting is the DAD SOAP service URL in `LaunchPad.Components`.
+
 ## Wrapper Method Mappings
 
 ### LaunchPadDB: method -> procedure -> caller
