@@ -244,6 +244,88 @@ Generated:
 - From the wrapper method, look up the stored procedure in the method-mapping tables above.
 - If the procedure has a local SQL definition file, open that file next; if it says `not found locally`, the logic lives in an external database outside the repo.
 
+## DAD in LaunchPad
+
+### Connection / config evidence
+
+| Type | File | Evidence | Meaning |
+| --- | --- | --- | --- |
+| SQLCMD variable | `LaunchPad/src/LabSchedule.Database/Properties/Database.sqlcmdvars` | `DADDB = DAD` | `LabSchedule.Database` resolves `[$(DADDB)]` to database `DAD` at build/deploy time |
+| DB project external reference | `LaunchPad/src/LabSchedule.Database/LabSchedule.Database.dbproj` | `ArtifactReference ..\ExternalDependencies\DAD.dbschema` + `DatabaseVariableName DADDB` | `LabSchedule.Database` depends on external DAD schema |
+| DB project external reference | `LaunchPad/src/LaunchPad.Database/LaunchPad.Database.dbproj` | `ArtifactReference ..\ExternalDependencies\DAD.dbschema` + `DatabaseVariableName DADDB` | `LaunchPad.Database` depends on external DAD schema |
+| SOAP service setting | `LaunchPad/src/LaunchPad.Components/app.config` | `LaunchPad_Components_ddweb_DADService = https://ddweb.corp.microsoft.com/dad/Services/DADService.asmx` | LaunchPad admin-side code calls DAD through web service, not SQL connection string |
+| Generated setting | `LaunchPad/src/LaunchPad.Components/Properties/Settings.Designer.cs` | default value for `LaunchPad_Components_ddweb_DADService` | strongly-typed accessor for DAD SOAP endpoint |
+
+### Important note on connection strings
+
+- I did not find a dedicated SQL connection string for database `DAD` in LaunchPad app/web config.
+- For SQL objects, LaunchPad uses the SQLCMD variable `DADDB = DAD` plus external `DAD.dbschema` references inside the database projects.
+- For admin/runtime service calls, LaunchPad uses the SOAP endpoint `https://ddweb.corp.microsoft.com/dad/Services/DADService.asmx`.
+
+### C# files touching DAD
+
+| File | DAD usage |
+| --- | --- |
+| `LaunchPad/src/LaunchPad.Components/LaunchPadDB.cs` | `GetServerPlainDetails()` directly executes `DAD..up_ServerGet`; `GetHardwareClasses()` passes `@DADServerCategoryID` into `up_HardwareClassGet` |
+| `LaunchPad/src/LaunchPad.Components/HardwareClass.cs` | `LoadByDADServerCategory()` loads build/drop hardware classes via `LaunchPadDB.GetHardwareClasses()` |
+| `LaunchPad/src/LaunchPad.Components/Enumerations.cs` | defines `DADServerCategory` enum |
+| `LaunchPad/src/LaunchPad/Admin/DAD/DADCommunicator.cs` | wraps generated `DADService` SOAP client for add/remove/rename/query server operations |
+| `LaunchPad/src/LaunchPad/Admin/DAD/DAD.cs` | factory for `DADCommunicator` |
+| `LaunchPad/src/LaunchPad/Admin/ServerProperties.ascx.cs` | bulk add/update servers through `DADCommunicator` |
+| `LaunchPad/src/LaunchPad/Admin/RenameServer.aspx.cs` | rename server through `DADCommunicator.RenameServer()` |
+| `LaunchPad/src/LaunchPad/Admin/RemoveServer.aspx.cs` | remove server through `DAD.DAD.GetDADCommunicator().RemoveServer()` |
+| `LaunchPad/src/LaunchPad/Admin/ManageServerPools.aspx.cs` | loads hardware classes via `HardwareClass.LoadByDADServerCategory()` |
+| `LaunchPad/src/LaunchPad/Admin/DefinitionEdit.aspx.cs` | binds build/drop hardware class dropdowns using `DADServerCategory` |
+| `LaunchPad/src/LaunchPad/Admin/Utilization.aspx.cs` | binds hardware class list using `DADServerCategory.BuildMachine` |
+| `LaunchPad/src/LaunchPad/Services/AJAXCalls.cs` | loads build-machine hardware classes via `HardwareClass.LoadByDADServerCategory()` |
+| `LaunchPad/src/LaunchPad.Components/Web References/ddweb/Reference.cs` | generated SOAP proxy for `DADService.asmx` |
+| `LaunchPad/src/LaunchPad.Components/Web References/ddweb/Reference.map` | WSDL/discovery metadata for DAD SOAP service |
+
+### SQL files touching DAD
+
+| Area | File |
+| --- | --- |
+| LaunchPad.Database stored procedure | `LaunchPad/src/LaunchPad.Database/Schema Objects/Schemas/dbo/Programmability/Stored Procedures/up_HardwareClassGet.proc.sql` |
+| LaunchPad.Database stored procedure | `LaunchPad/src/LaunchPad.Database/Schema Objects/Schemas/dbo/Programmability/Stored Procedures/up_GetBuildMachineSelection.proc.sql` |
+| LaunchPad.Database stored procedure | `LaunchPad/src/LaunchPad.Database/Schema Objects/Schemas/dbo/Programmability/Stored Procedures/up_GetBuildMachineSelectionForLopez.proc.sql` |
+| LaunchPad.Database stored procedure | `LaunchPad/src/LaunchPad.Database/Schema Objects/Schemas/dbo/Programmability/Stored Procedures/up_GetDropMachineSelection.proc.sql` |
+| LaunchPad.Database stored procedure | `LaunchPad/src/LaunchPad.Database/Schema Objects/Schemas/dbo/Programmability/Stored Procedures/up_UpdateBuildMachineState.proc.sql` |
+| LaunchPad.Database stored procedure | `LaunchPad/src/LaunchPad.Database/Schema Objects/Schemas/dbo/Programmability/Stored Procedures/up_UpdateDropMachineState.proc.sql` |
+| LaunchPad.Database stored procedure | `LaunchPad/src/LaunchPad.Database/Schema Objects/Schemas/dbo/Programmability/Stored Procedures/up_AddResourceToPool.proc.sql` |
+| LaunchPad.Database stored procedure | `LaunchPad/src/LaunchPad.Database/Schema Objects/Schemas/dbo/Programmability/Stored Procedures/up_RemoveResourceFromPool.proc.sql` |
+| LaunchPad.Database stored procedure | `LaunchPad/src/LaunchPad.Database/Schema Objects/Schemas/dbo/Programmability/Stored Procedures/up_LabDefinitionUpdate.proc.sql` |
+| LaunchPad.Database stored procedure | `LaunchPad/src/LaunchPad.Database/Schema Objects/Schemas/dbo/Programmability/Stored Procedures/up_ServerAssignmentsGet.proc.sql` |
+| LaunchPad.Database stored procedure | `LaunchPad/src/LaunchPad.Database/Schema Objects/Schemas/dbo/Programmability/Stored Procedures/up_ServerAssignmentsGetOld.proc.sql` |
+| LaunchPad.Database stored procedure | `LaunchPad/src/LaunchPad.Database/Schema Objects/Schemas/dbo/Programmability/Stored Procedures/up_ResourceGet.proc.sql` |
+| LaunchPad.Database stored procedure | `LaunchPad/src/LaunchPad.Database/Schema Objects/Schemas/dbo/Programmability/Stored Procedures/up_ResourceGetRankedByPool.proc.sql` |
+| LaunchPad.Database stored procedure | `LaunchPad/src/LaunchPad.Database/Schema Objects/Schemas/dbo/Programmability/Stored Procedures/up_GetAllocatedResourceOverview.proc.sql` |
+| LaunchPad.Database stored procedure | `LaunchPad/src/LaunchPad.Database/Schema Objects/Schemas/dbo/Programmability/Stored Procedures/up_RequestGetValidationQueueStatus.proc.sql` |
+| LaunchPad.Database stored procedure | `LaunchPad/src/LaunchPad.Database/Schema Objects/Schemas/dbo/Programmability/Stored Procedures/up_UtilizationGetOverallSummary.proc.sql` |
+| LaunchPad.Database stored procedure | `LaunchPad/src/LaunchPad.Database/Schema Objects/Schemas/dbo/Programmability/Stored Procedures/up_UtilizationGetOverallBuildMachineHistory.proc.sql` |
+| LaunchPad.Database stored procedure | `LaunchPad/src/LaunchPad.Database/Schema Objects/Schemas/dbo/Programmability/Stored Procedures/up_UtilizationGetClassHistory.proc.sql` |
+| LaunchPad.Database stored procedure | `LaunchPad/src/LaunchPad.Database/Schema Objects/Schemas/dbo/Programmability/Stored Procedures/up_UtilizationGetBuildMachineHistory.proc.sql` |
+| LaunchPad.Database stored procedure | `LaunchPad/src/LaunchPad.Database/Schema Objects/Schemas/dbo/Programmability/Stored Procedures/up_Tools_IsReadyForPatching.proc.sql` |
+| LaunchPad.Database stored procedure | `LaunchPad/src/LaunchPad.Database/Schema Objects/Schemas/dbo/Programmability/Stored Procedures/up_Tools_GetServersForPatching.proc.sql` |
+| LaunchPad.Database view | `LaunchPad/src/LaunchPad.Database/Schema Objects/Schemas/dbo/Views/vw_ResourceDADServers.view.sql` |
+| LaunchPad.Database view | `LaunchPad/src/LaunchPad.Database/Schema Objects/Schemas/dbo/Views/vw_DropServerPools.view.sql` |
+| LabSchedule.Database stored procedure | `LaunchPad/src/LabSchedule.Database/Schema Objects/Stored Procedures/dbo.sp_GetSchedulesWithMatchingSQLServer.proc.sql` |
+| LabSchedule.Database stored procedure | `LaunchPad/src/LabSchedule.Database/Schema Objects/Stored Procedures/dbo.sp_GetSchedulesWithMatchingDropServerFromPreviousDay.proc.sql` |
+| LabSchedule.Database stored procedure | `LaunchPad/src/LabSchedule.Database/Schema Objects/Stored Procedures/dbo.sp_GetScheduleSQLServers.proc.sql` |
+| LabSchedule.Database stored procedure | `LaunchPad/src/LabSchedule.Database/Schema Objects/Stored Procedures/dbo.sp_GetScheduleLayoutServers.proc.sql` |
+| LabSchedule.Database stored procedure | `LaunchPad/src/LabSchedule.Database/Schema Objects/Stored Procedures/dbo.sp_GetScheduleDropServers.proc.sql` |
+| LabSchedule.Database stored procedure | `LaunchPad/src/LabSchedule.Database/Schema Objects/Stored Procedures/dbo.sp_GetScheduleBuilds.proc.sql` |
+| LabSchedule.Database stored procedure | `LaunchPad/src/LabSchedule.Database/Schema Objects/Stored Procedures/dbo.sp_GetPoolServers.proc.sql` |
+| LabSchedule.Database stored procedure | `LaunchPad/src/LabSchedule.Database/Schema Objects/Stored Procedures/dbo.sp_GetLabSQLServers.proc.sql` |
+| LabSchedule.Database stored procedure | `LaunchPad/src/LabSchedule.Database/Schema Objects/Stored Procedures/dbo.sp_GetLabServers.proc.sql` |
+| LabSchedule.Database stored procedure | `LaunchPad/src/LabSchedule.Database/Schema Objects/Stored Procedures/dbo.sp_GetLabDropServers.proc.sql` |
+| LabSchedule.Database stored procedure | `LaunchPad/src/LabSchedule.Database/Schema Objects/Stored Procedures/dbo.sp_GetLabBuildMachines.proc.sql` |
+| LabSchedule.Database stored procedure | `LaunchPad/src/LabSchedule.Database/Schema Objects/Stored Procedures/dbo.sp_GetLabBBTServers.proc.sql` |
+| LabSchedule.Database view | `LaunchPad/src/LabSchedule.Database/Schema Objects/Views/dbo.vw_PoolsAndServers.view.sql` |
+| Deploy SQL snapshot | `LaunchPad/src/deploy/sql/000006/up_GetDropMachineSelection.proc.sql` |
+| Deploy SQL snapshot | `LaunchPad/src/deploy/sql/000007/up_GetDropMachineSelection.proc.sql` |
+| Deploy SQL snapshot | `LaunchPad/src/deploy/sql/000008/up_GetDropMachineSelection.proc.sql` |
+| Deploy SQL snapshot | `LaunchPad/src/deploy/sql/000009/up_UpdateDropMachineState.sql` |
+
 ## LaunchPad database map
 
 ### C# direct access
