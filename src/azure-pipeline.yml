@@ -27,25 +27,12 @@ stages:
   - job: Phase_1
     displayName: TempTest
     steps:
-    - template: /src/azure-pipelines/template/build-solution.yml@self
-      parameters:
-        SDKVersion: '6.0.x'
-    - template: /src/azure-pipelines/template/upgrade-powershell.yml@self
-      parameters:
-        PowerShellVersion: ${{ parameters.PowerShellVersion }}
     - task: PowerShell@2
       displayName: Test Env
       inputs:
         pwsh: true
         targetType: inline
         script: |
-          Write-Host "Package Path: $(PackagePath)"
-          if (Test-Path "$(PackagePath)") {
-            Get-ChildItem -Path "$(PackagePath)" -Recurse -File | Where-Object { $_.Name -ilike "*\vseng.pi\*" } | ForEach-Object { Write-Host $_.FullName }
-          }
-          else {
-            Write-Warning "PackagePath does not exist: $(PackagePath)"
-          }
-
-          import-module $(SourceFolder)\Test.psm1
-          Test-Function
+          $body = @("v-wexu@microsoft.com", "Sending test email via Testing.dll", "This is a test email to verify that the email sending function works correctly.")
+          [System.Reflection.Assembly]::LoadFrom('Q:\dd\TempTest\src\SendEmail\Testing.dll')
+          [Testing.Program]::Main($body)
