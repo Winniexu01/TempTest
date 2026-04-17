@@ -504,3 +504,146 @@ Request 在 launch 阶段会直接读取：
 
 - `ManageServerPools.aspx` 是创建请求前的资源准备步骤
 - 没有它，后续 Request 虽然能创建，但大概率不能顺利 Launch / Run
+
+---
+
+## 十三、一个机器被指给某个 Run 的过程
+
+这一段回答的是：
+
+- 一台机器怎么从“只是存在于 LaunchPad / DAD”
+- 变成“被某一个具体请求 / 具体 build 使用”
+- 最后真正执行 run
+
+### 13.1 机器先进入可选范围
+
+机器不会直接被某个 run 使用，它必须先满足以下前置条件：
+
+1. 机器已经作为 server record 存在于 DAD
+2. 机器被分配到某个 Build Pool
+3. 该 Build Pool 被绑定到某个 LabDefinition
+4. 请求选择的 Lab + Definition 正好对应这个 LabDefinition
+
+这样，请求代码才能通过：
+
+- `m_Request.Lab.BuildPool`
+
+拿到候选机器集合。
+
+相关代码：
+
+- `q:\dd\LaunchPad\src\LaunchPad.Components\LabDefinition.cs`
+- `q:\dd\LaunchPad\src\LaunchPad\Admin\ManageServerPools.aspx`
+- `q:\dd\LaunchPad\src\LaunchPad\Admin\PoolDefinitionMappings.aspx`
+
+### 13.2 手动分配机器给请求
+
+手动 Launch 时，用户会在 Build Resources 页面看到可选机器。
+
+页面：
+
+- `q:\dd\LaunchPad\src\LaunchPad\RequestWizard_BuildResources.aspx.cs`
+
+执行顺序：
+
+1. 页面加载时读取当前请求的 Build Pool 服务器列表：
+	- `m_Request.Lab.BuildPool.Servers`
+2. 然后调用：
+	- `m_Request.GetBuildMachineSelection()`
+3. 这一步会取 build machine selection algorithm 的推荐结果
+4. 页面将推荐的 `ServerID` 预选到每个 build 的下拉框
+5. 用户可以保留推荐结果，也可以手动改成别的机器
+6. 点击 Next / Save 后，页面会为每个 build 创建一条 `ResourceUsage`
+7. 然后对每条 `ResourceUsage` 调用 `Save()`
+
+关键代码位置：
+
+- `q:\dd\LaunchPad\src\LaunchPad\RequestWizard_BuildResources.aspx.cs`
+- `q:\dd\LaunchPad\src\LaunchPad.Components\ResourceUsage.cs`
+- `q:\dd\LaunchPad\src\LaunchPad.Components\LaunchPadDB.cs`
+
+### 13.3 自动分配机器给请求
+
+Auto Launch 不需要用户手动选机器。
+
+服务入口：
+
+- `q:\dd\LaunchPad\src\LaunchPad\Services\AutoLaunchServices.asmx.cs`
+
+执行顺序：
+
+1. `PrepareAutoLaunchRequestsForLaunching()` 找到待自动 launch 的请求
+2. 调用：
+	- `Request.GetBuildMachineSelection(targetDate)`
+3. 从 selection 结果里筛出属于当前 request 的机器
+4. 在 `AssignDropAndBuildResourcesToRequest(...)` 中，为每个 build 创建 `ResourceUsage`
+5. 调用 `buildUsage.Save()` 写库
+
+这说明：
+
+- 自动分配和手动分配，最终都落成同一种数据结构
+- 都是把机器保存成 request/build 下的一条 `ResourceUsage`
+
+### 13.4 ResourceUsage 是真正的“绑定关系”
+
+机器被指给某个 run，真正的关键不是 pool 本身，而是：
+
+- request 下某个 build requirement
+- 保存了一条指向某台机器的 `ResourceUsage`
+
+`ResourceUsage.Save()` 会把下面这些信息持久化：
+
+1. RequestId
+2. BuildId
+3. RequirementId
+4. ResourceId
+5. ResourceTypeId
+6. Comments
+7. Attributes
+8. 是否手工选择
+
+相关代码：
+
+- `q:\dd\LaunchPad\src\LaunchPad.Components\ResourceUsage.cs`
+
+所以，“一台机器被指给某个 run”在数据层的真实含义是：
+
+- 该 request 的某个 build 已经保存了一条指向这台 machine 的 resource usage
+
+### 13.5 后台服务如何真正拿这台机器去 Run
+
+真正执行 Run 的代码在：
+
+- `q:\dd\LaunchPad\src\LaunchPad.Service\Components\RequestProcessor.cs`
+
+顺序如下：
+
+1. `ProcessRequests()` 取出所有 `Ready To Launch` 的请求
+2. 每个 request 交给 `SingleRequestProcessor.ProcessSingleRequest()`
+3. 对每个 build，调用 `GetBuildMachine(build)`
+4. `GetBuildMachine(build)` 会从 `build.Resources` 中找到 requirement 为 Build Machines 的 `ResourceUsage`
+5. 取出其中关联的 `Resource`
+6. 对该机器先做 RPC 检查
+7. 调 `CreateBuildId(...)` 给这个 build 生成 LabStatus 的 BuildId / SessionId
+8. 之后遍历该 build 的资源，只对 `UseForLaunch == true` 的资源执行 launch
+9. 最终通过 `LaunchScript(...)` 在目标机器上创建进程，真正开始 run
+
+这一步说明：
+
+- pool 决定“候选范围”
+- `ResourceUsage` 决定“最终选中谁”
+- `RequestProcessor` 决定“真正在哪台机器上执行”
+
+### 13.6 最短主链
+
+把“一个机器被指给某个 run”的过程压成最短链就是：
+
+1. 机器被登记到 DAD
+2. 机器在 `ManageServerPools.aspx` 里被放进 Build Pool
+3. Build Pool 在 `PoolDefinitionMappings.aspx` 里被绑定到 LabDefinition
+4. 请求在 Launch 阶段进入 `RequestWizard_BuildResources.aspx`
+5. 用户手选或系统自动推荐某台 build machine
+6. 该机器被保存成 `ResourceUsage`
+7. 后台 `RequestProcessor` 读出这条 usage
+8. 在这台机器上执行 launch script
+9. 这台机器就成为这个 run 的执行机器
