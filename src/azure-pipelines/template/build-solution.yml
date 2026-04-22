@@ -1,7 +1,5 @@
 parameters:
-- name: SolutionName
-  type: string
-  default: ' '
+  SDKVersion: ''
 
 steps:
 - task: NuGetToolInstaller@1
@@ -9,22 +7,50 @@ steps:
   inputs:
     checkLatest: true
 
+- ${{ if ne(parameters.SDKVersion, '') }}:
+  - task: UseDotNet@2
+    displayName: 'Install .NET SDK ${{ parameters.SDKVersion }}'
+    inputs:
+      packageType: 'sdk'
+      version: '${{ parameters.SDKVersion }}'
+
+- pwsh: |
+    $fullSolution = Get-ChildItem -Path . -Recurse -File `
+      -Include "$(SolutionName).sln", "$(SolutionName).slnx" -ErrorAction SilentlyContinue |
+      Select-Object -First 1 -ExpandProperty FullName
+
+    if (-not $fullSolution) {
+      Write-Error "No solution file found with name $(SolutionName) (.sln or .slnx) in the repository."
+      exit 1
+    }
+    Write-Host "##vso[task.setvariable variable=FullSolution]$fullSolution"
+  displayName: 'Set Full Solution Variable'
+
 - task: NuGetCommand@2
-  displayName: 'NuGet Restore (${{ parameters.SolutionName }})'
+  displayName: 'NuGet Restore ($(SolutionName))'
   inputs:
-    restoreSolution: '**/${{ parameters.SolutionName }}'
+    restoreSolution: '$(FullSolution)'
+    restoreDirectory: '$(PackagePath)'
     feedsToUse: 'config'
     nugetConfigPath: Nuget.config
     includeNuGetOrg: false
   continueOnError: false
 
 - task: VSBuild@1
-  displayName: 'Build ${{ parameters.SolutionName }}'
+  displayName: 'Build $(SolutionName)'
   inputs:
-    solution: '**/${{ parameters.SolutionName }}'
+    solution: '$(FullSolution)'
     platform: $(BuildPlatform)
     Configuration: $(BuildConfiguration)
     msbuildArgs: >
-      /bl:$(Build.ArtifactStagingDirectory)\Logs\${{ parameters.SolutionName }}.binlog;ProjectImports=None
+      /p:VSEngMailerVersion=$(VSEngMailerVersion)
+      /bl:$(Build.ArtifactStagingDirectory)\Logs\$(SolutionName).binlog;ProjectImports=None
       /p:OutputPath=$(OutputFolder)
   continueOnError: false
+
+- pwsh: |
+    Write-Host "Setting up environment variables"
+    Write-Host "##vso[task.setvariable variable=AssemblyPath]$(OutputFolder)"
+    Write-Host "##vso[task.setvariable variable=VSEngPIPath]$(PackagePath)\vseng.pi"
+  displayName: 'Set Assembly Path Variable'
+  condition: and(succeeded(), eq(variables['SolutionName'], 'PackageLoader'))
