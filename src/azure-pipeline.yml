@@ -6,9 +6,6 @@ parameters:
 
 variables:
 - template: /src/azure-pipelines/template/variables.yml@self
-  parameters:
-    SolutionName: 'PackageLoader'
-    VSEngMailerVersion: ${{ parameters.VSEngMailerVersion }}
 
 name: $(date:yyyyMMdd)$(rev:.r)
 
