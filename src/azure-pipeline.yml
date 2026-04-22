@@ -23,8 +23,8 @@ stages:
     displayName: TempTest
     steps:
     - template: /src/azure-pipelines/template/build-solution.yml@self
-          parameters:
-            SolutionName: '$(SolutionName).slnx'
+      parameters:
+        SolutionName: '$(SolutionName).slnx'
 
     - script: |
         $(SolutionName).exe
