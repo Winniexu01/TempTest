@@ -6,6 +6,8 @@ parameters:
 
 variables:
 - template: /src/azure-pipelines/template/variables.yml@self
+  parameters:
+    SolutionName: PackageLoader
 
 name: $(date:yyyyMMdd)$(rev:.r)
 
@@ -21,8 +23,8 @@ stages:
     displayName: TempTest
     steps:
     - template: /src/azure-pipelines/template/build-solution.yml@self
-      parameters:
-        SolutionName: 'PackageLoader.slnx'
+          parameters:
+            SolutionName: '$(SolutionName).slnx'
 
     - script: |
         $(SolutionName).exe
