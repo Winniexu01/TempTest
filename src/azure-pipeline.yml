@@ -29,6 +29,6 @@ stages:
     - script: |
         $(SolutionName).exe
       displayName: 'Run $(SolutionName) EXE'
-      workingDirectory: $(SourceFolder)\Output
+      workingDirectory: $(OutputFolder)
       env:
         KEYWORDS: ${{ parameters.KEYWORDS }}
