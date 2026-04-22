@@ -3,6 +3,10 @@ parameters:
   type: string
   displayName: 'Keywords for Xcode monitoring (comma-separated)'
   default: 'Xcode'
+- name: VSEngMailerVersion
+  type: string
+  displayName: 'Version of VSEngMailer (e.g., 1.0.*; default - latest).'
+  default: '*'
 - name: Debug
   type: boolean
   displayName: 'Enable Debug Mode'
