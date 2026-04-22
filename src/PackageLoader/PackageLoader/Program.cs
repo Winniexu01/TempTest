@@ -10,6 +10,8 @@ namespace PackageLoader
     {
         static void Main(string[] args)
         {
+            var env = Environment.GetEnvironmentVariable("KEYWORDS");
+            Console.WriteLine($"KEYWORDS: {env}");
         }
     }
 }

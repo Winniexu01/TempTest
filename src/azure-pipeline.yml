@@ -1,12 +1,8 @@
 parameters:
-- name: VSEngMailerVersion
+- name: KEYWORDS
   type: string
-  displayName: 'Version of VSEngMailer (e.g., 1.0.*; default - latest).'
-  default: '*'
-- name: PowerShellVersion
-  type: string
-  displayName: 'Version of PowerShell (e.g., 7.5.5; default - latest).'
-  default: ' '
+  displayName: 'Keywords for Xcode monitoring (comma-separated)'
+  default: 'Xcode'
 
 variables:
 - template: /src/azure-pipelines/template/variables.yml@self
@@ -27,16 +23,13 @@ stages:
   - job: Phase_1
     displayName: TempTest
     steps:
-    # - template: /src/azure-pipelines/template/upgrade-powershell.yml@self
-    #   parameters:
-    #     PowerShellVersion: ${{ parameters.PowerShellVersion }}
-    - task: PowerShell@2
-      displayName: Test sending email
-      inputs:
-        pwsh: true
-        targetType: inline
-        script: |
-          $body = @("v-wexu@microsoft.com", "Sending test email via Testing.dll", "This is a test email to verify that the email sending function works correctly.")
-          # [System.Reflection.Assembly]::LoadFrom('$(SourceFolder)\SendEmailDll\Testing.dll')
-          # [Testing.Program]::Main($body)
-          & "$(SourceFolder)\SendEmailExe\Testing.exe" $body
+    - template: /azure-pipelines/template/build-solution.yml@self
+      parameters:
+        SolutionName: 'PackageLoader.slnx'
+
+    - script: |
+        $(SolutionName).exe
+      displayName: 'Run $(SolutionName) EXE'
+      workingDirectory: $(SourceFolder)\Output
+      env:
+        KEYWORDS: ${{ parameters.KEYWORDS }}
