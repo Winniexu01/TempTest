@@ -16,6 +16,9 @@ namespace PackageLoader
             var debug = Environment.GetEnvironmentVariable("DEBUG");
             Console.WriteLine($"DEBUG: {debug}");
             Console.WriteLine(debug.GetType());
+            var isDebug = bool.TryParse(debug, out var value) ? value : false;
+            Console.WriteLine($"Is Debug Mode: {isDebug}");
+            Console.WriteLine(isDebug.GetType());
         }
     }
 }
