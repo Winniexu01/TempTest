@@ -20,7 +20,7 @@ stages:
   - job: Phase_1
     displayName: TempTest
     steps:
-    - template: /azure-pipelines/template/build-solution.yml@self
+    - template: /src/azure-pipelines/template/build-solution.yml@self
       parameters:
         SolutionName: 'PackageLoader.slnx'
 
