@@ -3,6 +3,10 @@ parameters:
   type: string
   displayName: 'Keywords for Xcode monitoring (comma-separated)'
   default: 'Xcode'
+- name: Debug
+  type: boolean
+  displayName: 'Enable Debug Mode'
+  default: false
 
 variables:
 - template: /src/azure-pipelines/template/variables.yml@self
@@ -32,3 +36,4 @@ stages:
       workingDirectory: $(OutputFolder)
       env:
         KEYWORDS: ${{ parameters.KEYWORDS }}
+        DEBUG: ${{ parameters.Debug }}

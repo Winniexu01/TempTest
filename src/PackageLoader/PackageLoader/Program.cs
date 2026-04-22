@@ -12,6 +12,10 @@ namespace PackageLoader
         {
             var env = Environment.GetEnvironmentVariable("KEYWORDS");
             Console.WriteLine($"KEYWORDS: {env}");
+
+            var debug = Environment.GetEnvironmentVariable("DEBUG");
+            Console.WriteLine($"DEBUG: {debug}");
+            Console.WriteLine(debug.GetType());
         }
     }
 }
