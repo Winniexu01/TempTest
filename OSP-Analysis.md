@@ -456,3 +456,44 @@ sequenceDiagram
 		App->>App: Save settings + shutdown helpers
 	end
 ```
+
+## 时序图（仅认证链路，极简）
+
+这张图只保留会触发登录的关键调用路径。
+
+```mermaid
+sequenceDiagram
+	autonumber
+	actor User as User
+	participant MW as MainWindow
+	participant VM as IssuesViewModel
+	participant WDS as WorkItemsDataSource
+	participant WIH as WorkItemHelper
+	participant TFS as TfsInstance
+	participant AAD as DefaultAzureCredential
+	participant ADO as Azure DevOps API
+
+	User->>MW: Launch app (default Unassigned tab)
+	MW->>VM: Refresh(true)
+	VM->>WDS: RefreshAsync()
+	WDS->>WIH: ExecuteWiqlAsync(query)
+	WIH->>TFS: TfsInstance.Instance
+
+	alt first use / disposed / token expiring
+		TFS->>AAD: GetTokenAsync(scope)
+		AAD-->>User: Interactive login (if no cached credential)
+		AAD-->>TFS: Access token
+		TFS->>TFS: Build VssConnection + client
+	else client/token still valid
+		TFS->>TFS: Reuse existing client/token
+	end
+
+	TFS-->>WIH: WorkItemTrackingHttpClient
+	WIH->>ADO: QueryByWiqlAsync + GetWorkItemsAsync
+	ADO-->>WIH: Work items
+	WIH-->>WDS: Results
+	WDS-->>VM: Stats
+	VM-->>MW: UI updated
+```
+
+一句话：登录不是 `InstallCert()` 触发，而是首次访问 Azure DevOps WorkItem 接口时由 `DefaultAzureCredential` 懒触发。
