@@ -356,3 +356,103 @@ sequenceDiagram
 | `OSP/OSP/ViewModels/MyIssuesViewModel.cs` | 97-99 | `*.RefreshAsync()` | 多数据源并行任务创建 |
 | `OSP/OSP/ViewModels/MyIssuesViewModel.cs` | 102 | `await Task.WhenAll(tasks)` | 等待并行任务全部完成 |
 | `OSP/OSP/ViewModels/MyIssuesViewModel.cs` | 112 | `Dispatcher.InvokeAsync(...)` | 回到 UI 线程更新绑定 |
+
+## 时序图（详细版）
+
+下面这张图覆盖了从启动到首次触发登录的完整链路，包含并行刷新分支。
+
+```mermaid
+sequenceDiagram
+	autonumber
+	actor User as User
+	participant App as App.xaml/App.xaml.cs
+	participant MW as MainWindow
+	participant WPF as WPF TabControl
+	participant VM as IssuesViewModel
+	participant IDS as IssuesDataSource
+	participant ICM as IcMDataSource
+	participant WDS as WorkItemsDataSource
+	participant SDS as ServiceTicketDataSource
+	participant WIH as WorkItemHelper
+	participant TFS as TfsInstance
+	participant AAD as DefaultAzureCredential
+	participant ADO as Azure DevOps API
+	participant ICMAPI as IcM API
+
+	User->>App: Launch app
+	App->>App: Application_Startup()\nInit Logger + HttpClient
+	App->>MW: Create MainWindow (StartupUri)
+
+	MW->>MW: InitializeComponent()
+	Note over WPF: TabControl default-selects first tab\nUnassigned Issues
+	WPF-->>MW: SelectionChanged
+	MW->>MW: tabControl_SelectionChanged()
+	MW->>VM: SetActive(unassignedIssuesView.ViewModel)
+	MW->>VM: Refresh(true)
+
+	MW->>MW: Register ViewModels\nLoad window position/theme/mute
+	MW-->>MW: _ = InitializeAsync() (fire-and-forget)
+
+	par Background init
+		MW->>MW: InitializeAsync()
+		MW->>MW: await VersionCheckAsync()
+		MW->>MW: InstallCert()\n(IcM cert only)
+	and First Unassigned refresh
+		VM->>VM: RefreshAsync(true)
+		VM->>VM: Guard checks\n(_isRefreshing, IsActiveView)
+		VM->>VM: InitDataSources()
+
+		par Parallel pulls
+			VM->>IDS: RefreshAsync()
+			IDS-->>VM: Build issues ready
+		and
+			VM->>ICM: RefreshAsync()
+			ICM->>ICMAPI: GET incidents with client cert
+			ICMAPI-->>ICM: payload
+			ICM-->>VM: IcM stats ready
+		and
+			VM->>WDS: RefreshAsync()
+			WDS->>WIH: ExecuteWiqlAsync(query)
+			WIH->>TFS: get Instance
+			TFS->>TFS: if (instance == null || disposed || token expiring)
+			TFS->>AAD: GetTokenAsync(scope)
+			AAD-->>TFS: Access token\n(may open interactive login)
+			TFS-->>WIH: WorkItemTrackingHttpClient
+			WIH->>ADO: QueryByWiqlAsync + GetWorkItemsAsync
+			ADO-->>WIH: Work items
+			WIH-->>WDS: items
+			WDS-->>VM: WorkItem stats ready
+		and
+			VM->>SDS: RefreshAsync()
+			SDS->>WIH: ExecuteWiqlAsync(query)
+			WIH->>TFS: get Instance (reuse if already built)
+			WIH->>ADO: QueryByWiqlAsync + GetWorkItemsAsync
+			ADO-->>WIH: Service tickets
+			WIH-->>SDS: items
+			SDS-->>VM: ServiceTicket stats ready
+		end
+
+		VM->>VM: await Task.WhenAll(...)
+		VM->>VM: ConvertSearchResultsToViewModels()
+		VM->>MW: Dispatcher.InvokeAsync(PopulateViewModelFromSearchResults)
+		MW-->>User: Unassigned cards rendered
+	end
+
+	loop Periodic refresh
+		VM->>VM: DispatcherTimer.Tick -> RefreshAsync()
+		Note over VM: Same parallel flow repeats
+	end
+
+	opt User switches tab
+		User->>MW: Select My Issues / All Issues
+		MW->>MW: tabControl_SelectionChanged()
+		MW->>VM: SetActive(target VM)
+		MW->>VM: target.Refresh(...)
+	end
+
+	opt App exit
+		App->>App: Application_Exit()
+		App->>TFS: Dispose client
+		App->>App: Save settings + shutdown helpers
+	end
+```
