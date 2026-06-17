@@ -10,7 +10,7 @@ parameters:
 
 variables:
 - name: WorkflowExe
-  value: $(Build.SourcesDirectory)\src\QueueBuild\bin\Release\QueueBuild.exe
+  value: $(Build.SourcesDirectory)\src\QueueBuild\QueueBuild\bin\Release\QueueBuild.exe
 
 name: $(date:yyyyMMdd)$(rev:.r)
 
