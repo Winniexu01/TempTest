@@ -25,8 +25,8 @@ stages:
     steps:
     - pwsh: |
         Write-Host "Parameters:"
-        Write-Host "  Account: $(Account)"
-        Write-Host "  Project: $(Project)"
-        Write-Host "  BuildId: $(BuildId)"
-        Write-Host "  WorkflowBranch: $(WorkflowBranch)"
+        Write-Host "  Account: ${{ parameters.Account }}"
+        Write-Host "  Project: ${{ parameters.Project }}"
+        Write-Host "  BuildId: ${{ parameters.BuildId }}"
+        Write-Host "  WorkflowBranch: ${{ parameters.WorkflowBranch }}"
       displayName: 'Print parameters'
