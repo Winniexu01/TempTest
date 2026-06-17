@@ -12,17 +12,7 @@ class Program
     {
         GlobalSettings.OAuthAccessToken = Environment.GetEnvironmentVariable("SYSTEM_ACCESSTOKEN");
         GlobalSettings.CredentialType = CredentialType.VssOAuthCredential;
-        if (string.IsNullOrEmpty(GlobalSettings.OAuthAccessToken))
-        {
-            Console.WriteLine("SYSTEM_ACCESSTOKEN is not set.");
-            return;
-        }
-        else
-        {
-            Console.WriteLine("SYSTEM_ACCESSTOKEN is set.");
-        }
-        return;
-        QueueBuild(account: "v-wexu0720", project: "Test", definitionId: 28100, customParameters: null, queueId: -1);
+        QueueBuild(account: "v-wexu0720", project: "Test", definitionId: 13, customParameters: null, queueId: -1);
     }
     public static void QueueBuild(string account, string project, int definitionId, Dictionary<string, string> customParameters, int queueId)
     {
