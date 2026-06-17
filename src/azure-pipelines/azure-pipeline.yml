@@ -1,0 +1,85 @@
+parameters:
+- name: KEYWORDS
+  type: string
+  displayName: 'Keywords for Xcode monitoring (comma-separated)'
+  default: 'Xcode'
+- name: VSEngMailerVersion
+  type: string
+  displayName: 'Version of VSEngMailer (e.g., 1.0.*; default - latest).'
+  default: '*'
+
+variables:
+- name: WorkflowExe
+  value: $(Build.SourcesDirectory)\src\QueueBuild\bin\Release\QueueBuild.exe
+
+name: $(date:yyyyMMdd)$(rev:.r)
+
+trigger: none
+pr: none
+
+resources:
+  repositories:
+  - repository: self
+
+extends:
+  parameters:
+    pool: 'windows-latest'
+    stages:
+    - stage: stage
+      displayName: 'DDFinalize-Test'
+      jobs:
+      - job: Phase_1
+        timeoutInMinutes: 120
+        displayName: Phase_1
+        steps:
+        - checkout: self
+          clean: true
+          persistCredentials: true
+
+        - task: NuGetToolInstaller@1
+          displayName: 'Use NuGet'
+          inputs:
+            checkLatest: true
+
+        - task: NuGetCommand@2
+          displayName: 'Restore Nuget Packages'
+          inputs:
+            restoreSolution: '$(Build.SourcesDirectory)\src\QueueBuild\QueueBuild.slnx'
+            feedsToUse: 'config'
+            nugetConfigPath: Nuget.config
+            includeNuGetOrg: false
+          continueOnError: false
+
+        - task: MSBuild@1
+          displayName: 'Build Workflow Executable'
+          inputs:
+            solution: '$(Build.SourcesDirectory)\src\QueueBuild\QueueBuild.slnx'
+            configuration: Release
+            clean: true
+          continueOnError: false
+
+        - task: PowerShell@2
+          displayName: 'Verify Build Workflow Executable'
+          continueOnError: false
+          inputs:
+            targetType: 'inline'
+            script: |
+              $workflowExe = "$(WorkflowExe)"
+              Write-Host "Checking for workflow executable at: $workflowExe"
+              if (-not (Test-Path $workflowExe))
+              {
+                Write-Error "Workflow executable not found: $workflowExe"
+                exit 1
+              }
+
+              Write-Host "Workflow executable found: $workflowExe"
+              Get-ChildItem $workflowExe | Format-Table Name, Length, LastWriteTime
+            workingDirectory: '$(Build.SourcesDirectory)'
+
+        - task: CmdLine@2
+          displayName: 'Finalize Build'
+          inputs:
+            script: '"$(WorkflowExe)"'
+            workingDirectory: '$(Build.SourcesDirectory)'
+          env:
+            SYSTEM_ACCESSTOKEN: $(System.AccessToken)

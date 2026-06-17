@@ -11,5 +11,6 @@
   <ItemGroup>
     <PackageVersion Include="VSEng.Mailer" Version="$(VSEngMailerVersion)" />
     <PackageVersion Include="VSEng.PI" Version="*" />
+    <PackageVersion Include="Microsoft.DevDiv.AzureDevOpsAPI" Version="2.0.7" />
   </ItemGroup>
 </Project>

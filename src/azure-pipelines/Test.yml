@@ -1,0 +1,37 @@
+parameters:
+- name: Account
+  type: string
+  default: 'DevDiv'
+- name: Project
+  type: string
+  default: 'DevDiv'
+- name: BuildId
+  type: string
+  default: ''
+
+name: $(date:yyyyMMdd)$(rev:.r)
+
+trigger: none
+pr: none
+
+resources:
+  repositories:
+  - repository: self
+
+extends:
+  parameters:
+    pool: 'windows-latest'
+    stages:
+    - stage: stage
+      displayName: 'Test'
+      jobs:
+      - job: Phase_1
+        displayName: DDBuildScripts-Test
+        steps:
+        - pwsh: |
+            Write-Host "Parameters:"
+            Write-Host "  Account: $(Account)"
+            Write-Host "  Project: $(Project)"
+            Write-Host "  BuildId: $(BuildId)"
+            Write-Host "  WorkflowBranch: $(WorkflowBranch)"
+          displayName: 'Print parameters'
