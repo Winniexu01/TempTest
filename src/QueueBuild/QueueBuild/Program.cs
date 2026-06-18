@@ -1,4 +1,5 @@
 ﻿using AzureDevOpsAPI;
+using Microsoft.TeamFoundation.Build.WebApi;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
@@ -12,7 +13,14 @@ class Program
     {
         GlobalSettings.OAuthAccessToken = Environment.GetEnvironmentVariable("SYSTEM_ACCESSTOKEN");
         GlobalSettings.CredentialType = CredentialType.VssOAuthCredential;
-        QueueBuild(account: "v-wexu0720", project: "Test", definitionId: 13, customParameters: null, queueId: -1);
+        var finalizeBuildParameters = new Dictionary<string, string>()
+        {
+            ["Account"] = "v-wexu0720",
+            ["Project"] = "Test",
+            ["BuildId"] = "123123",
+            ["WorkflowBranch"] = "v-wexu",
+        };
+        QueueBuild(account: "v-wexu0720", project: "Test", definitionId: 13, customParameters: finalizeBuildParameters, queueId: -1);
     }
     public static void QueueBuild(string account, string project, int definitionId, Dictionary<string, string> customParameters, int queueId)
     {

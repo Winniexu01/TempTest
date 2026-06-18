@@ -71,31 +71,10 @@ stages:
           Get-ChildItem $workflowExe | Format-Table Name, Length, LastWriteTime
         workingDirectory: '$(Build.SourcesDirectory)'
 
-    - task: AzureCLI@2
-      displayName: 'Get AccessToken of Winniexu01'
-      inputs:
-        azureSubscription: Winniexu01
-        scriptType: ps
-        scriptLocation: inlineScript
-        inlineScript: |
-          $accessToken = az account get-access-token --resource 499b84ac-1321-427f-aa17-267ca6975798 --query "accessToken" --output tsv
-
-          if(-not $accessToken) 
-          {
-            Write-Error "The accessToken of Winniexu01 is null or empty!"
-          }
-          else
-          {
-            Write-Host "The accessToken of Winniexu01 is obtained."
-          }
-
-          Write-Host "##vso[task.setvariable variable=ACCESSTOKEN]$accessToken"
-      continueOnError: false
-
     - task: CmdLine@2
       displayName: 'Finalize Build'
       inputs:
         script: '"$(WorkflowExe)"'
         workingDirectory: '$(Build.SourcesDirectory)'
       env:
-        SYSTEM_ACCESSTOKEN: $env:ACCESSTOKEN
+        SYSTEM_ACCESSTOKEN: $(System.AccessToken)
