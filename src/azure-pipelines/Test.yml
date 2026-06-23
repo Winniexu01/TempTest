@@ -13,6 +13,10 @@ stages:
     displayName: DDBuildScripts-Test
     steps:
     - pwsh: |
+        Write-Host "Environment Variables:"
+        Get-ChildItem Env: | ForEach-Object { Write-Host "$($_.Name)=$($_.Value)" }
+      displayName: 'Print Environment Variables'
+    - pwsh: |
         Write-Host "Parameters:"
         Write-Host "  Account: $(Account)"
         Write-Host "  Project: $(Project)"
