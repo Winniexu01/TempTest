@@ -1,3 +1,11 @@
+parameters:
+- name: TestParam
+  type: string
+
+variables:
+- name: TestVar
+  value: 1
+
 name: $(date:yyyyMMdd)$(rev:.r)
 
 trigger: none
@@ -12,14 +20,14 @@ stages:
   - job: Phase_1
     displayName: DDBuildScripts-Test
     steps:
-    - pwsh: |
-        Write-Host "Environment Variables:"
-        Get-ChildItem Env: | ForEach-Object { Write-Host "$($_.Name)=$($_.Value)" }
-      displayName: 'Print Environment Variables'
+    # - pwsh: |
+    #     Write-Host "Environment Variables:"
+    #     Get-ChildItem Env: | ForEach-Object { Write-Host "$($_.Name)=$($_.Value)" }
+    #   displayName: 'Print Environment Variables'
     - pwsh: |
         Write-Host "Parameters:"
-        Write-Host "  Account: $(Account)"
-        Write-Host "  Project: $(Project)"
-        Write-Host "  BuildId: $(BuildId)"
-        Write-Host "  WorkflowBranch: $(WorkflowBranch)"
+        Write-Host "  TestParam: ${{ parameters.TestParam }}"
+        Write-Host "Variables:"
+        Write-Host "  TestVar: $(TestVar)"
+        Write-Host "  TestVar2: $(TestVar2)"
       displayName: 'Print parameters'
